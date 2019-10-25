@@ -13,8 +13,5 @@ include_directories(${GTEST_INCLUDE_DIRS})
 
 add_subdirectory(src)
 
+#enable_testing ()
 #add_subdirectory (test)
-#
-##
-#if(BUILD_TESTING)
-#endif()
