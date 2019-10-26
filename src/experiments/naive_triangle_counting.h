@@ -12,6 +12,8 @@
 #define V3_NAIVE_TRIANGLE_COUNTING_H
 
 /* Experiment Results
+ * NOTE: All experiments are performed on reordered graphs.
+ * If id1 < id2 => degree(id1) < degree(id2)
  * 1. Description: Triangle counting using a naive intersection without any gallopping
  * using function naive_intersect()
  * ---------------------------
@@ -69,6 +71,7 @@ int triangle_counting(Graph *graph){
     stop_timer(TOTALNODEPROCESSTIME);
     print_statistics();
     cout << "triangles found:" <<  s << "\n";
+    return s;
 }
 
 
@@ -78,7 +81,7 @@ int batched_triangle_counting(Graph *graph){
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
     int s = 0;
-    int batchSize = 64;
+    int batchSize = 10;
     MinHeap *heap = new MinHeap(batchSize);
     NODETYPE *bArr[batchSize];
     NODETYPE bSize[batchSize];
@@ -89,7 +92,7 @@ int batched_triangle_counting(Graph *graph){
         NODETYPE* aNeighourArray = &edgeArray[nd1.offset_plus];
         NODETYPE aSize = nd1.size_plus;
         int noBatches = aSize/batchSize;
-        if(noBatches>0) noB ++;
+        if(noBatches>0){ noB ++; }
         for(int b = 0; b < noBatches; b++){
             for(int j=0;j< batchSize; j++){
                 int curr_b= b*batchSize + j;
@@ -103,8 +106,9 @@ int batched_triangle_counting(Graph *graph){
 //        NODETYPE* arrA, NODETYPE sizeA,
 //                NODETYPE** bArrys, NODETYPE *bsizes, int batchsize, MinHeap * utilityHeap
         }
+        int offset = noBatches * batchSize;
         for(int j=0; j < aSize%batchSize; j++){
-            int curr_b= noBatches * batchSize+ j;
+            int curr_b= offset + j;
             NODETYPE bNode = aNeighourArray[curr_b];
             NODE nd2 =  ndArray[bNode];
             NODETYPE *bNeighbourArray = &edgeArray[nd2.offset_plus];

@@ -7,7 +7,7 @@ include_directories (${PROJECT_SOURCE_DIR}/src/Array)
 include_directories (${PROJECT_SOURCE_DIR}/src/timers)
 
 
-add_executable(test_driver Main_TestAll.cpp baseline.cpp)
+add_executable(test_driver Main_TestAll.cpp baseline.cpp arrays.cpp)
 
 target_link_libraries(test_driver ${GTEST_LIBRARIES} pthread moduleLib)
 

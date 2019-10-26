@@ -8,7 +8,7 @@ include_directories(timers)
 
 file( GLOB graphSRC Graph/*)
 file(GLOB utilitySRC Array/*)
-add_library(moduleLib ${graphSRC} ${utilitySRC} timers/timers.cpp)
+add_library(moduleLib STATIC ${graphSRC} ${utilitySRC} timers/timers.cpp)
 add_executable(runner runner.cpp)
 target_link_libraries(runner moduleLib)
 

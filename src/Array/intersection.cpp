@@ -37,6 +37,9 @@ int naive_intersect(NODETYPE* arrA, NODETYPE sizeA, NODETYPE* arrB, NODETYPE siz
             s ++ ;
             curr_a ++ ;
             curr_b ++ ;
+            int a = curr_a/curr_b;
+            int b = curr_a%curr_b;
+            a = b+1;
             continue;
         }
         if (arrA[curr_a] < arrB[curr_b]) {
