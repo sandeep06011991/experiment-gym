@@ -24,7 +24,7 @@ struct ID_Map {
 
 // orders in decreasing order of degree
 bool comparator(Vertex n1, Vertex n2){
-    if(n1.degree > n2.degree) return true;
+    if(n1.degree < n2.degree) return true;
     if(n1.degree == n2.degree) return n1.id < n2.id;
     return false;
 }

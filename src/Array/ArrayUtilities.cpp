@@ -8,7 +8,8 @@
 using namespace std;
 
 const int linearSearchThresold = 20;
-
+/* NON UNIFORM API: gives out offset in some cases and
+ * position in some cases. */
 int binary_search(NODETYPE* nd, int start,int end, NODETYPE target){
     if((end-start+1) < linearSearchThresold){
         for(int i=start;i<=end;i++){
@@ -33,7 +34,9 @@ int binary_search(NODETYPE* nd, int start,int end, NODETYPE target){
     return -1;
 }
 
-
+/*
+ * Searches array from start, start + size for element greater or equal to
+ * than target returns start + offset*/
 int binarySearchFirstElementGreaterOrEqualTarget(NODETYPE *arr,int start, NODETYPE size, int target){
 //    return start;
     if(arr[start]>=target)return start;
@@ -58,6 +61,37 @@ int binarySearchFirstElementGreaterOrEqualTarget(NODETYPE *arr,int start, NODETY
     if(mid==size-1 && arr[mid]<target)return mid+1;
 //    std::cout << arr[mid] << ":" << target << ":"<<  arr[mid-1] <<"\n";
     assert((arr[mid]==target) ||((arr[mid]>target) &&((mid==0)||(arr[mid-1]<target))));
+    return mid;
+}
+
+/*
+ * Searches array from start, start + size for element greater or equal to
+ * than target returns start + offset*/
+int binarySearchFirstElementGreaterTarget(NODETYPE *arr,int start, NODETYPE size, int target){
+
+    if(arr[start]>target)return start;
+    if(size<linearSearchThresold){
+        for(int i=start;i<size;i++){
+            if(arr[i]>target)return i;
+        }
+        return size;
+    }
+    int end = size-1;
+    int mid;
+    assert(size>0);
+    int ans = -1;
+    while(start <= end) {
+        mid = (start + end)/2;
+
+        if(arr[mid]<= target){
+            start = mid +1;
+        }else{
+            ans = mid;
+            end = mid - 1;
+        }
+    }
+    if(ans==-1)ans = size;
+    mid = ans;
     return mid;
 }
 

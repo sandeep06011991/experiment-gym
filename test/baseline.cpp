@@ -13,6 +13,5 @@ using namespace std;
 TEST(test2A, test2B) {
     Graph * graph = new Graph("data/com-youtube.ungraph.txt.ro");
     int r = triangle_counting(graph);
-    cout << r << "\n";
     EXPECT_TRUE(r==3056386);
 }

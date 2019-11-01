@@ -13,4 +13,7 @@ int binary_search(NODETYPE* nd, int start, int end, NODETYPE target);
 int binarySearchFirstElementGreaterOrEqualTarget(NODETYPE *arr,int start, NODETYPE size, int target);
 
 int binarySearchFirstElementLessOrEqualTarget(NODETYPE *arr,int start, NODETYPE size, int target);
+
+int binarySearchFirstElementGreaterTarget(NODETYPE *arr,int start, NODETYPE size, int target);
+
 #endif //V2_ARRAYUTILITIES_H

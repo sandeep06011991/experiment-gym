@@ -11,6 +11,12 @@
 #ifndef V3_NAIVE_TRIANGLE_COUNTING_H
 #define V3_NAIVE_TRIANGLE_COUNTING_H
 
+bool isSkewed(NODE a, NODE b){
+    int skew = 2;
+    if(a.size_plus << skew < b.size_plus)return true;
+    if(b.size_plus << skew < a.size_plus)return true;
+    return false;
+}
 /* Experiment Results
  * NOTE: All experiments are performed on reordered graphs.
  * If id1 < id2 => degree(id1) < degree(id2)
@@ -53,6 +59,8 @@ int triangle_counting(Graph *graph){
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
     int s = 0;
+    int skip =0;
+    int total = 0;
     start_timer(TOTALNODEPROCESSTIME);
     for(int i=0;i<graph->getNoVertexes();i++){
         NODE nd1 = ndArray[i];
@@ -70,6 +78,7 @@ int triangle_counting(Graph *graph){
 
     stop_timer(TOTALNODEPROCESSTIME);
     print_statistics();
+    cout << "Fraction of nodes skipped:" << skip *1.0 / total  << "\n";
     cout << "triangles found:" <<  s << "\n";
     return s;
 }

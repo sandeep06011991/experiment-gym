@@ -3,6 +3,12 @@
 Repository contains tools required to test various hypothesis.
 Components which I will expect will reused will have unit tests
 
+
+## SPRINT TASKS
+
+1. Evaluate square pattern with two methods
+2. Extend BitMatrix architecture
+
 ## Folder structure
 
 1. Folders contain testable modules
@@ -11,7 +17,6 @@ Components which I will expect will reused will have unit tests
 
 ## TODO
 
-1. Configure unit tests and change to more moduler architecture [When Tired]
 2. Can I built bit Maps at that speed.
 3. Evaluate batched intersections
 
