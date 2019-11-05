@@ -3,11 +3,16 @@
 Repository contains tools required to test various hypothesis.
 Components which I will expect will reused will have unit tests
 
+## Current sprint
 
-## SPRINT TASKS
+1. Finish Square and capture measurements (Start 2:17)
+2. Do experiment measuring cost of division with and without powers of 2.
+3. Transfer BitMatrix computation
 
-1. Evaluate square pattern with two methods
-2. Extend BitMatrix architecture
+## EXPERIMENTS TO DO TOMORROW
+
+1. Cost of BitMatrix construction should be reasonable
+2. Square Matrix computation.
 
 ## Folder structure
 

@@ -23,7 +23,9 @@ MinHeap::MinHeap(int size){
     maxSize = size;
 }
 
-MinHeap::~MinHeap(){
+MinHeap::MinHeap(HeapElement * array,int size){
+    this->array = array;
+    maxSize = size;
 }
 
 HeapElement MinHeap::peekTopElement() {

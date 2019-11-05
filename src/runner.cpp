@@ -18,7 +18,9 @@ int main(int argc, char *argv[]) {
 //    Graph * graph = new Graph("data/com-youtube.ungraph.txt.ro");
 //    Graph * graph = new Graph("data/data1.graph");
 //    graph->debugGraph();
-    naive_square_counting(graph);
+    not_naive_square(graph);
+//    naive_square_counting(graph);
+
 //    batched_triangle_counting(graph);
 //    triangle_counting(graph);
 //      test_array_intersection();

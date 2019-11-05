@@ -23,6 +23,8 @@ public:
 
     MinHeap(int size);
 
+    MinHeap(HeapElement * array,int size);
+
     void addElement(NODETYPE nd, int arrayId);
 
     void popElement(HeapElement * target);
@@ -33,7 +35,7 @@ public:
 
     void debugHeap();
 
-    ~MinHeap();
+    ~MinHeap(){}
 
     NODETYPE getSecondMinimum(){
         assert(currentSize>=2);
