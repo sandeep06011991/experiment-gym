@@ -18,4 +18,7 @@ int hybrid_intersect(NODETYPE* arrA, NODETYPE sizeA, NODETYPE* arrB, NODETYPE si
 int batched_intersection(NODETYPE* arrA, NODETYPE sizeA,
                          NODETYPE** bArrys, NODETYPE *bsizes, int batchsize, MinHeap * utilityHeap);
 
+int  intersectSets4IntegerAttime(NODETYPE *base, int baseSize, NODETYPE *A, int ASize);
+
+
 #endif //V3_INTERSECTION_H

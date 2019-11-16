@@ -96,3 +96,14 @@ void Graph::debugGraph(){
         cout << "\n";
     }
 }
+
+
+int Graph::countNodesWithPosEdgesGreater(int target){
+    int r = 0;
+    NODE * nd = this->nodes;
+    for(int i=0;i<this->getNoVertexes();i++){
+        if(nd[i].size_plus > target) r ++ ;
+    }
+    cout << "total nodes of size greater than :" << target << " are " << r << "\n";
+    return r;
+}

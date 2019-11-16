@@ -28,6 +28,7 @@ void init_metrics() {
 void reset_timer(TIMERS tname){
     if(DEBUG){
         save[tname] = 0;
+        timers[tname] = 0;
     }
 }
 

@@ -95,6 +95,32 @@ int binarySearchFirstElementGreaterTarget(NODETYPE *arr,int start, NODETYPE size
     return mid;
 }
 
+
+int gallopingSearchFirstElementGreaterTTarget(NODETYPE *arr,int start, NODETYPE size, int target) {
+
+    int safety = start;
+    int end = size-1;
+    int mid;
+    if(start>end){
+        return end+1;
+    }
+
+//    start_timer(BINARYSEARCH);
+//  Objective get down to a binary range of (0,1024)
+    int offset = 4;
+    while(start+offset<size && arr[start+offset]<target){
+        start=start+offset;
+        offset = offset *2;
+//        if(offset>1000)cout << offset << "\n";
+        while(start+offset>size && offset > 4) offset =offset / 2;
+    }
+//    stop_timer(BINARYSEARCH);
+    return start;
+
+
+
+}
+
 //  This has not been debugged.
 int binarySearchFirstElementLessOrEqualTarget(NODETYPE *arr,int start, NODETYPE size, int target){
     assert(false);

@@ -35,5 +35,7 @@ public:
     void calculatePlusNeighbourHood();
 
     void debugGraph();
+
+    int countNodesWithPosEdgesGreater(int target);
 };
 #endif //V2_GRAPH_H
