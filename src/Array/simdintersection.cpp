@@ -105,6 +105,8 @@ int intersectSets4IntegerAttime(NODETYPE *base, int baseSize, NODETYPE *A, int A
     const __m128i K32 = _mm_setr_epi32(1, 1, 1, 1);
     while(cbase+3 < baseSize && cAsize+3 < ASize){
 //        assert(i>>2 < size);
+//        __m128i baseV = _mm_lddqu_si128((__m128i *)&base[cbase]);
+//        __m128i AV = _mm_lddqu_si128((__m128i *)&A[cAsize]);
         __m128i baseV = _mm_lddqu_si128(reinterpret_cast<const __m128i *>((__m128i *)&base[cbase]));
         __m128i AV = _mm_lddqu_si128(reinterpret_cast<const __m128i *>((__m128i *)&A[cAsize]));
         __m128i shuffle1 =  _mm_shuffle_epi32 (AV, _MM_SHUFFLE(0,1,2,3));

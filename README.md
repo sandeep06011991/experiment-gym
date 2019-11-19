@@ -5,6 +5,10 @@ Components which I will expect will reused will have unit tests
 
 ## Current sprint
 --> Come closer to the single threaded version of the baseline.
+-------> As guided by Yi !!!!
+        1. Replace binary search with gallopping search
+        2. Increase register width to 256 bits from 128 bits.
+
 
 1. Finish Square and capture measurements (Start 2:17)
 2. Do experiment measuring cost of division with and without powers of 2.

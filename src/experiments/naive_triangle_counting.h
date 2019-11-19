@@ -66,6 +66,7 @@ int triangle_counting(Graph *graph){
         NODE nd1 = ndArray[i];
         NODETYPE* aNeighourArray = &edgeArray[nd1.offset_plus];
         NODETYPE aSize = nd1.size_plus;
+        cout << i <<"\n";
         for(int j=0;j<nd1.size_plus;j++){
             NODETYPE bNode = aNeighourArray[j];
             NODE nd2 =  ndArray[bNode];

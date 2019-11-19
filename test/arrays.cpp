@@ -48,12 +48,12 @@ TEST(searchg, gallopping_search_first_Greater) {
         a[i] = i;
     }
     for(int i=0;i<max;i++){
-        int r = gallopingSearchFirstElementGreaterTarget(a,0,max,i);
-        EXPECT_EQ(i+1,r);
+        int r = gallopingSearchFirstElementGreaterOrEqualTarget(a,0,max,i);
+        EXPECT_EQ(i,r);
     }
     for(int i=0;i<max;i++){
-        int r = gallopingSearchFirstElementGreaterTarget(a,i,max,i);
-        EXPECT_EQ(i+1,r);
+        int r = gallopingSearchFirstElementGreaterOrEqualTarget(a,i,max,i);
+        EXPECT_EQ(i,r);
     }
 }
 

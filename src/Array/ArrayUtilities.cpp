@@ -60,7 +60,10 @@ int binarySearchFirstElementGreaterOrEqualTarget(NODETYPE *arr,int start, NODETY
 //    cout << "new "<< arr[mid]<<"\n";
     if(mid==size-1 && arr[mid]<target)return mid+1;
 //    std::cout << arr[mid] << ":" << target << ":"<<  arr[mid-1] <<"\n";
-    assert((arr[mid]==target) ||((arr[mid]>target) &&((mid==0)||(arr[mid-1]<target))));
+//    if(!((arr[mid]==target) ||((arr[mid]>target) &&((mid==0)||(arr[mid-1]<target))))){
+//        cout <<mid << " " <<size << " " << arr[mid] << " " << target <<"\n";
+//    }
+//    assert((arr[mid]==target) ||((arr[mid]>target) &&((mid==0)||(arr[mid-1]<target))));
     return mid;
 }
 
@@ -96,29 +99,32 @@ int binarySearchFirstElementGreaterTarget(NODETYPE *arr,int start, NODETYPE size
 }
 
 
-int gallopingSearchFirstElementGreaterTTarget(NODETYPE *arr,int start, NODETYPE size, int target) {
-
-    int safety = start;
+int gallopingSearchFirstElementGreaterOrEqualTarget(NODETYPE *arr, int start, NODETYPE size, int target) {
     int end = size-1;
-    int mid;
     if(start>end){
         return end+1;
     }
 
-//    start_timer(BINARYSEARCH);
-//  Objective get down to a binary range of (0,1024)
-    int offset = 4;
-    while(start+offset<size && arr[start+offset]<target){
-        start=start+offset;
-        offset = offset *2;
-//        if(offset>1000)cout << offset << "\n";
-        while(start+offset>size && offset > 4) offset =offset / 2;
+    if(arr[start] >= target)return start;
+    if(start == end) return start+1;
+
+    if(arr[start+1] >=target)return start+1;
+    if(start+1 == end)return start+2;
+
+    int t = 1;
+    int max = size - start - 1;
+
+
+    while(t <= max){
+        if(arr[start+t]==target)return start+t;
+        if(arr[start+t]<target)t = t<<1;
+        else{
+            return binarySearchFirstElementGreaterOrEqualTarget(arr,start+t>>1,size,target);
+
+//            return binarySearchFirstElementGreaterOrEqualTarget(arr,start+t>>1,start+t +1,target);
+        }
     }
-//    stop_timer(BINARYSEARCH);
-    return start;
-
-
-
+    return binarySearchFirstElementGreaterOrEqualTarget(arr,start + t>>1,size,target);
 }
 
 //  This has not been debugged.

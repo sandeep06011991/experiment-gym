@@ -16,4 +16,6 @@ int binarySearchFirstElementLessOrEqualTarget(NODETYPE *arr,int start, NODETYPE 
 
 int binarySearchFirstElementGreaterTarget(NODETYPE *arr,int start, NODETYPE size, int target);
 
+int gallopingSearchFirstElementGreaterOrEqualTarget(NODETYPE *arr,int start, NODETYPE size, int target) ;
+
 #endif //V2_ARRAYUTILITIES_H
