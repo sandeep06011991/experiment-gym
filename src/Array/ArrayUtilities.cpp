@@ -37,6 +37,7 @@ int binary_search(NODETYPE* nd, int start,int end, NODETYPE target){
 /*
  * Searches array from start, start + size for element greater or equal to
  * than target returns start + offset*/
+//FixMe: Clean this code
 int binarySearchFirstElementGreaterOrEqualTarget(NODETYPE *arr,int start, NODETYPE size, int target){
 //    return start;
     if(arr[start]>=target)return start;
@@ -119,7 +120,8 @@ int gallopingSearchFirstElementGreaterOrEqualTarget(NODETYPE *arr, int start, NO
         if(arr[start+t]==target)return start+t;
         if(arr[start+t]<target)t = t<<1;
         else{
-            return binarySearchFirstElementGreaterOrEqualTarget(arr,start+t>>1,size,target);
+//            cout << "space reduction " << t << " vs " << size-start <<"\n";
+            return binarySearchFirstElementGreaterOrEqualTarget(arr,start+t>>1,start+t+1,target);
 
 //            return binarySearchFirstElementGreaterOrEqualTarget(arr,start+t>>1,start+t +1,target);
         }
@@ -154,4 +156,18 @@ int binarySearchFirstElementLessOrEqualTarget(NODETYPE *arr,int start, NODETYPE 
 //    std::cout <<arr[mid] <<":" << target << ":"<<  arr[mid-1] <<"\n";
     assert((arr[mid]==target) ||((arr[mid]<target) && (arr[mid+1]<target)));
     return mid;
+}
+
+
+/* Experiment:
+ * Evaluate performance of binary search vs gallopping search for youtube graph.
+ * Square query:
+ * a. binary search + naive intersection : 38.7, 35.47, 35.99
+ * b. gallopping search + naive intesection : 38.678 , 39.211, 39.6
+ * Conclusion: Not a huge and actually slightly worse.
+ * Will be using binary evaluation
+ * */
+int searchFirstElementGreaterOrEqualTarget(NODETYPE *arr,int start, NODETYPE size, int target){
+    return binarySearchFirstElementGreaterOrEqualTarget(arr,start,size,target);
+//    return gallopingSearchFirstElementGreaterOrEqualTarget(arr,start,size,target);
 }

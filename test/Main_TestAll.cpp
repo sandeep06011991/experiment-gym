@@ -10,6 +10,6 @@ TEST(IndependentMethod, ResetsToZero) {
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
-    ::testing::GTEST_FLAG(filter) = "searchg*";
+    ::testing::GTEST_FLAG(filter) = "simd*";
     return RUN_ALL_TESTS();
 }

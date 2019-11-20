@@ -4,7 +4,7 @@ option(test "Build all tests." OFF)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "-o3 -mavx2 -fPIC -std=c++0x -pedantic  -Wall \
         -Wno-unused-function -Wextra -march=native -mtune=native \
-        -DNUM_THREADS_IN=${NUM_THREADS}")
+        -DNUM_THREADS_IN=${NUM_THREADS} -fdump-tree-profile_estimate")
 set(CMAKE_BUILD_TYPE Debug)
 
 file(COPY data DESTINATION .)

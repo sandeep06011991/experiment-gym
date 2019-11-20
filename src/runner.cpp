@@ -4,6 +4,7 @@
 #include <iostream>
 #include <intersection.h>
 #include <timer.h>
+#include <branch_eval.h>
 #include "graph.h"
 #include "experiments/naive_triangle_counting.h"
 #include "experiments/square_counting.h"
@@ -14,7 +15,7 @@ using namespace std;
 /* Main entry point */
 int main(int argc, char *argv[]) {
 
-    cout << "No. of arguments recieved " << argc <<"\n";
+//    cout << "No. of arguments recieved " << argc <<"\n";
 //    Graph * graph = new Graph("data/com-amazon.ungraph.txt.ro");
     Graph * graph = new Graph("data/com-youtube.ungraph.txt.ro");
 
@@ -23,6 +24,7 @@ int main(int argc, char *argv[]) {
 //    graph->debugGraph();
 
     naive_square_counting(graph);
+//  bit_vector_based(graph);
 //    graph->countNodesWithPosEdgesGreater(100);
 //    graph->countNodesWithPosEdgesGreater(1000);
 //    graph->countNodesWithPosEdgesGreater(10000);

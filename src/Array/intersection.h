@@ -21,4 +21,6 @@ int batched_intersection(NODETYPE* arrA, NODETYPE sizeA,
 int  intersectSets4IntegerAttime(NODETYPE *base, int baseSize, NODETYPE *A, int ASize);
 
 
+int intersectSets8IntegerAttime(NODETYPE *base, int baseSize, NODETYPE *A, int ASize);
+
 #endif //V3_INTERSECTION_H

@@ -30,3 +30,14 @@ TEST(simd, four_int_intersections) {
     cout << "Total time" << (end-start)/1000000 <<"\n";
     cout << r << "\n";
 }
+
+TEST(simd, eight_int_intersections) {
+    alignas(32) NODETYPE base[] = {1,2,3,4,5,6,7,8};
+    alignas(32) NODETYPE arr[] =  {1,2,4,5,6,9,19,11};
+    double start = std::clock();
+    int r;
+    r = intersectSets8IntegerAttime(base,8,arr,8);
+    double end = std::clock();
+    cout << "Total time" << (end-start)/1000000 <<"\n";
+    cout << r << "\n";
+}
