@@ -413,7 +413,7 @@ void bit_vector_based(Graph *graph){\
 //            cout << base[j] << " " ;
 //        }
 //        cout <<"\n";
-
+        continue;
 //      Compute of n Arrays, compute intersection with bit array.
 //      size in char but rounded to int to allow next loop
         int charbitVectorsize = ((baseSize + 32 )/32 * 4);
