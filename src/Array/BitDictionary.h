@@ -8,6 +8,14 @@
 // Allows to read properties of 0-256 bit of information
 class BitDictionary {
 
+    int dic[256];
+public:
+    BitDictionary();
+
+    int countSetBits(unsigned char t);
+
+    void visualize();
+
 };
 
 

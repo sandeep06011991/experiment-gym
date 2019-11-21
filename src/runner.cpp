@@ -23,8 +23,8 @@ int main(int argc, char *argv[]) {
 //    Graph * graph = new Graph("data/data1.graph");
 //    graph->debugGraph();
 
-    naive_square_counting(graph);
-//  bit_vector_based(graph);
+//    naive_square_counting(graph);
+        bit_vector_based(graph);
 //    graph->countNodesWithPosEdgesGreater(100);
 //    graph->countNodesWithPosEdgesGreater(1000);
 //    graph->countNodesWithPosEdgesGreater(10000);

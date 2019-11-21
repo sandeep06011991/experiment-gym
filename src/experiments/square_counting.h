@@ -12,6 +12,8 @@
 #include <vector>
 #include "set"
 #include <algorithm>
+#include <BitDictionary.h>
+#include <bitset>
 #include "timer.h"
 
 #ifndef V3_SQUARE_COUNTING_H
@@ -327,18 +329,23 @@ bool eq_intersect_pair (intersect_pair a,intersect_pair b) {
 }
 
 /* Do not use external library such as malloc unless absolutely required. */
-/* Bit Vector square exploration */
+/* Bit Vector square exploration
+ * TODO: Experiment: Compare performance with bit vectors vs naive approach*/
 void bit_vector_based(Graph *graph){\
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
     //  Measure average degree
     init_metrics();
+    BitDictionary *bitDictionary = new BitDictionary();
+//    bitDictionary->visualize();
     reset_timer(TOTALNODEPROCESSTIME);
     start_timer(TOTALNODEPROCESSTIME);
     NODETYPE a[1000000];
     NODETYPE b[1000000];
+    int res = 0;
 
     for(int i=0;i<graph->getNoVertexes();i++){
+//        for(int i=1;i<2;i++){
         NODE nd0= ndArray[i];
 
 //      calculate required offsets
@@ -351,8 +358,8 @@ void bit_vector_based(Graph *graph){\
 //      Union all elements.
 //      copy one neighbourhood into the base array
         NODE tNode = ndArray[edgeArray[nd0.offset_plus]];
-        int t = 0 ;
-        for(int k=offsets[0]; k<tNode.size; k++){
+        int t = 0;
+        for(int k=offsets[0]; k < tNode.size; k++){
             a[t] = edgeArray[tNode.offset + k];
             t ++ ;
         }
@@ -365,12 +372,13 @@ void bit_vector_based(Graph *graph){\
             NODE cNode = ndArray[edgeArray[nd0.offset_plus+j]];
             int bP = 0;
             t = 0;
-            int nodeP = offsets[j];
-            while((bP < baseSize) && (nodeP < cNode.size)){
+            int nodeP = cNode.offset + offsets[j];
+            int nodePmax = cNode.offset + cNode.size;
+            while((bP < baseSize) && (nodeP < nodePmax)){
                 if(base[bP] == edgeArray[nodeP]){
+                    temp[t] = base[bP];
                     bP ++;
                     nodeP ++;
-                    temp[t] = base[bP];
                     t++;
                     continue;
                 }
@@ -389,7 +397,7 @@ void bit_vector_based(Graph *graph){\
                 t++;
                 bP ++;
             }
-            while(nodeP<cNode.size){
+            while(nodeP<nodePmax){
                 temp[t] = edgeArray[nodeP];
                 t++;
                 nodeP ++;
@@ -400,29 +408,57 @@ void bit_vector_based(Graph *graph){\
             baseSize = t;
 //          swap temp and base in the end
         }
+//        cout << "###### BASE ARRAY ##############";
 //        for(int j=0;j<baseSize;j++){
 //            cout << base[j] << " " ;
 //        }
 //        cout <<"\n";
-//      Compute of n Arrays, compute intersection as well.
+
+//      Compute of n Arrays, compute intersection with bit array.
+//      size in char but rounded to int to allow next loop
+        int charbitVectorsize = ((baseSize + 32 )/32 * 4);
+        unsigned char bitArray[charbitVectorsize * nd0.size_plus];
+        memset(bitArray,0,sizeof(unsigned char) * charbitVectorsize * nd0.size_plus );
+
         for(int j=0;j<nd0.size_plus;j++){
             NODE cNode = ndArray[edgeArray[nd0.offset_plus+j]];
-            hybrid_intersect(base,baseSize,&edgeArray[cNode.offset+offsets[j]],cNode.size - offsets[j]);
+            bitMark_intersect(base, baseSize, &edgeArray[cNode.offset+offsets[j]],
+                    cNode.size - offsets[j], &bitArray[charbitVectorsize * j]);
+//          hybrid_intersect(base,baseSize,&edgeArray[cNode.offset+offsets[j]],cNode.size - offsets[j]);
         }
-        int bitVsize = baseSize/32;
+//        #####################################################
+//        cout << " #### Bit Matrix debug ### \n";
+//        for(int ii=0;ii < nd0.size_plus;ii++){
+//            NODE t = ndArray[edgeArray[nd0.offset_plus + ii]];
+//            cout << t.id << ": ";
+//            for(int j=offsets[ii]; j <t.size;j++){
+//                cout << edgeArray[t.offset + j] <<" ";
+//            }
+//            cout <<"\n";
+//
+//            for(int j=0;j<charbitVectorsize;j++){
+//                cout <<bitset<8>(bitArray[charbitVectorsize *ii +j]);
+//            }
+//            cout <<"\n";
+//        }
+//      #############################################################
         int s = 0;
 
 //      Use these bit vectors to compute
         for(int j=0;j<nd0.size_plus;j++){
+            int aoffset = charbitVectorsize * j;
             for(int k=j+1;k<nd0.size_plus;k++){
-                for(int t=0;t<bitVsize;t++){
-                    s = 12 & 1234;
+                int boffset = charbitVectorsize * k;
+                for(int t=0;t<charbitVectorsize;t++){
+                   unsigned char x = bitArray[aoffset + t] & bitArray[boffset + t];
+                   res = res + bitDictionary->countSetBits(x);
                 }
             }
         }
 
 
     }
+    cout << "total squares found:" << res << "\n";
     stop_timer(TOTALNODEPROCESSTIME);
     cout << "total base array time " << get_timer(TOTALNODEPROCESSTIME) <<"\n";
 

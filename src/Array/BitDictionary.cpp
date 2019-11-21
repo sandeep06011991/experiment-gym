@@ -3,3 +3,25 @@
 //
 
 #include "BitDictionary.h"
+
+#include "iostream"
+
+BitDictionary::BitDictionary(){
+    for(int i=0;i<256;i++){
+        int t=0;
+        for(int j=0;j<8;j++){
+            if((i & (1U<<j))!=0)t++;
+        }
+        dic[i] = t;
+    }
+}
+
+int BitDictionary::countSetBits(unsigned char t){
+    return dic[(int)t];
+};
+
+void BitDictionary::visualize(){
+    for(int i=0;i<256;i++){
+        std::cout << i << " " << dic[i] << "\n";
+    }
+}
