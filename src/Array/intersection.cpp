@@ -96,9 +96,9 @@ int hybrid_intersect(NODETYPE* arrA, NODETYPE sizeA, NODETYPE* arrB, NODETYPE si
     }
 //    return 0;
     return intersectSets8IntegerAttime(arrA,sizeA,arrB,sizeB);
-    return intersectSets4IntegerAttime(arrA,sizeA,arrB,sizeB);
+//    return intersectSets4IntegerAttime(arrA,sizeA,arrB,sizeB);
 
-//    return naive_intersect(arrA,sizeA,arrB,sizeB);
+    return naive_intersect(arrA,sizeA,arrB,sizeB);
 }
 
 int batched_intersection(NODETYPE* arrA, NODETYPE sizeA,

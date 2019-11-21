@@ -65,6 +65,46 @@ NODETYPE naive_vertex_explore(int i, Graph *graph){
 
 
 /*  Find all squares in a pattern graph
+ *  Youtube Graph
+ *  Experiment:         Time(s) | cch-miss(Cr.) | cache-ref | branch | br-miss | Instruc
+ *  Naive square pattern:   45s | 8  (45%)      | 18        | 4282   | 167     | 29955
+ *  Binary square pattern:  73s | **            | **        | 6402   | 325     | 49019
+ *  Hybrid (tol-5)       :  51s | 10 (40%)      | 23        | 3547   | 202     |
+ *  Hybrid (tol-10)     :   37s | 9 (42%)       | 21        | 3253   | 187     | 23078
+ *  Hybrid (tol-20)     :   41  | 8 (40%)       | 19        | 3307   | 178 (5%)| 23171
+ *  pure-simd4          :   35  | 6 (40%)       | 17        | 1139   | 43 (3.8)| 23763
+ *  pure-simd8          :   29  | 6 (37%)       | 21        |  869   | 27 (3.2)| 20344
+ *  hybrid-simd4 (tol10):   33  | 5 (35%)       | 15        | 1458   | 70      | 20098
+ *  hybrid-simd8 (tol10):   27  | 5 (34%)       | 14        | 1266   | 55 (4%) | 17988
+ *  LIGHT               :   28  | 5 (31%)       | 18        |  835   | 83 (9%) | 14205
+ *  Observations:
+ *  1. Binary vs Naive -> More absolute branches and branch misses and instructions,
+ *  only impactful when there is a substantial skew. Hybrid captures the best of both.
+ *  As expected binary has a speed up only when used with the naive approach
+ *
+ *  2. Naive vs pure-simd4 vs pure-simd8 . simd should always be faster than binary.
+ *  Expect fewer branches, fewer cache-misses, branches and branch-misses.
+ *
+ *  3. Hybrid vs Hybrid-SIMD4 -> Expect better performance in scenario of high skew.
+ *  Minimizing some comparisions.Similar to 2.
+ *
+ *  4. Light vs SIMD8 -> Matching performance, However increased instructions from index
+ *  construction prequery.
+ *
+ *  Final Notes:
+ *  1. Although SIMD promises 4x performance improvement. We are barely coming near that.
+ *  Driving home the importance of an efficient encoding.
+ *
+ *  2. Overall cache-miss rate is 30% and branch miss prediction is 4%.
+ *
+ *  Note:
+ *  It can be observed that simd alone cannot give a speed up. Then how did LIGHT beat emptyheaded,
+ *  which uses some encoding. On rechecking the paper I realized they skipped some experiments
+ *  and only considered the cases where their idea is applicable. Later they performed all queries
+ *  with map-reduce based solution, which would be definately slower due to data shuffling.
+ *
+ *
+ *
  * */
 int naive_square_counting(Graph *graph){
     NODE * ndArray = graph->getNodeArray();
@@ -106,8 +146,10 @@ int naive_square_counting(Graph *graph){
 
 //            s = s + naive_intersect
 //                    ( &cNeighbourArray[nd3_plus_offset], cSize,&bNeighbourArray[nd2_plus_offset], bSize);
-                s = s + hybrid_intersect(&cNeighbourArray[nd3_plus_offset], cSize,&bNeighbourArray[nd2_plus_offset], bSize);
-//                s = s + intersectSets4IntegerAttime(&cNeighbourArray[nd3_plus_offset], cSize,&bNeighbourArray[nd2_plus_offset], bSize);
+//                s = s + binary_intersect(&cNeighbourArray[nd3_plus_offset], cSize,&bNeighbourArray[nd2_plus_offset], bSize);
+
+//                s = s + hybrid_intersect(&cNeighbourArray[nd3_plus_offset], cSize,&bNeighbourArray[nd2_plus_offset], bSize);
+                s = s + intersectSets8IntegerAttime(&cNeighbourArray[nd3_plus_offset], cSize,&bNeighbourArray[nd2_plus_offset], bSize);
             }
 //            s = s + hybrid_intersect(aNeighourArray, aSize, bNeighbourArray, bSize);
         }
@@ -119,6 +161,8 @@ int naive_square_counting(Graph *graph){
     return s;
 }
 
+/* Square counting using heap unify , performing the union of multiple
+ * adjacency lists */
 NODETYPE not_naive_vertex_explore(int i, Graph *graph){
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
