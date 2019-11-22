@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <BitDictionary.h>
 #include <bitset>
+#include <BitVectorUtil.h>
 #include "timer.h"
 
 #ifndef V3_SQUARE_COUNTING_H
@@ -330,7 +331,21 @@ bool eq_intersect_pair (intersect_pair a,intersect_pair b) {
 
 /* Do not use external library such as malloc unless absolutely required. */
 /* Bit Vector square exploration
- * TODO: Experiment: Compare performance with bit vectors vs naive approach*/
+ * TODO: Experiment: Compare performance with bit vectors vs naive approach
+ * Performance break down:
+ * Base array construction time: 11s
+ * base array Intersection time: 40s
+ * Intersection time : 10s
+ * Current best simd vs non-simd range : 25-35s
+ * Profile
+ * Experiment:         Time(s) | cch-miss(Cr.) | cache-ref | branch | br-miss | Instruc
+ * Hybrid (tol-10)     :   37s | 9 (42%)       | 21        | 3253   | 187     | 23078
+ * Naive square pattern:   45s | 8  (45%)      | 18        | 4282   | 167     | 29955
+ * Bit Vector          :   65s | 6 (21%)       | 28        | 6407   | 104     | 54177
+    Optimize 1: base array construction:
+    11s naive approach === using binary search **
+
+ * */
 void bit_vector_based(Graph *graph){\
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
@@ -342,90 +357,100 @@ void bit_vector_based(Graph *graph){\
     start_timer(TOTALNODEPROCESSTIME);
     NODETYPE a[1000000];
     NODETYPE b[1000000];
+    NODETYPE baseArray[maxArraySize];
     int res = 0;
 
     for(int i=0;i<graph->getNoVertexes();i++){
 //        for(int i=1;i<2;i++){
         NODE nd0= ndArray[i];
-
+        if(nd0.size_plus == 0) continue;
 //      calculate required offsets
+        NODETYPE* arrays[nd0.size_plus];
+        NODETYPE arrsize[nd0.size_plus];
         NODETYPE offsets[nd0.size_plus];
         for(int j=0;j<nd0.size_plus;j++){
                 NODE nd1= ndArray[edgeArray[nd0.offset_plus+j]];
                 offsets[j] = binarySearchFirstElementGreaterTarget(&edgeArray[nd1.offset],0,nd1.size,nd0.id);
+                arrays[j] = &edgeArray[nd1.offset + offsets[j]];
+                arrsize[j] = nd1.size - offsets[j];
         }
 
 //      Union all elements.
 //      copy one neighbourhood into the base array
-        NODE tNode = ndArray[edgeArray[nd0.offset_plus]];
-        int t = 0;
-        for(int k=offsets[0]; k < tNode.size; k++){
-            a[t] = edgeArray[tNode.offset + k];
-            t ++ ;
-        }
+        NODETYPE baseSize = computeBaseArrayAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
 
-//      Union over all other elements.
-        NODETYPE *base = a;
-        int baseSize = t;
-        NODETYPE *temp = b;
-        for(int j=1;j<nd0.size_plus;j++){
-            NODE cNode = ndArray[edgeArray[nd0.offset_plus+j]];
-            int bP = 0;
-            t = 0;
-            int nodeP = cNode.offset + offsets[j];
-            int nodePmax = cNode.offset + cNode.size;
-            while((bP < baseSize) && (nodeP < nodePmax)){
-                if(base[bP] == edgeArray[nodeP]){
-                    temp[t] = base[bP];
-                    bP ++;
-                    nodeP ++;
-                    t++;
-                    continue;
-                }
-                if(base[bP] < edgeArray[nodeP]){
-                    temp[t] = base[bP];
-                    t++;
-                    bP ++;
-                }else{
-                    temp[t] = edgeArray[nodeP];
-                    t++;
-                    nodeP ++;
-                }
-            }
-            while(bP < baseSize){
-                temp[t] = base[bP];
-                t++;
-                bP ++;
-            }
-            while(nodeP<nodePmax){
-                temp[t] = edgeArray[nodeP];
-                t++;
-                nodeP ++;
-            }
-            NODETYPE *bck = base;
-            base = temp;
-            temp = bck;
-            baseSize = t;
-//          swap temp and base in the end
-        }
+        NODETYPE *base = baseArray;
+//        NODE tNode = ndArray[edgeArray[nd0.offset_plus]];
+//        int t = 0;
+//        for(int k=offsets[0]; k < tNode.size; k++){
+//            a[t] = edgeArray[tNode.offset + k];
+//            t ++ ;
+//        }
+//
+////      Union over all other elements.
+//        NODETYPE *base = a;
+//        int baseSize = t;
+//        NODETYPE *temp = b;
+//        for(int j=1;j<nd0.size_plus;j++){
+//            NODE cNode = ndArray[edgeArray[nd0.offset_plus+j]];
+//            int bP = 0;
+//            t = 0;
+//            int nodeP = cNode.offset + offsets[j];
+//            int nodePmax = cNode.offset + cNode.size;
+//            while((bP < baseSize) && (nodeP < nodePmax)){
+//                if(base[bP] == edgeArray[nodeP]){
+//                    temp[t] = base[bP];
+//                    bP ++;
+//                    nodeP ++;
+//                    t++;
+//                    continue;
+//                }
+//                if(base[bP] < edgeArray[nodeP]){
+//                    temp[t] = base[bP];
+//                    t++;
+//                    bP ++;
+//                }else{
+//                    temp[t] = edgeArray[nodeP];
+//                    t++;
+//                    nodeP ++;
+//                }
+//            }
+//            while(bP < baseSize){
+//                temp[t] = base[bP];
+//                t++;
+//                bP ++;
+//            }
+//            while(nodeP<nodePmax){
+//                temp[t] = edgeArray[nodeP];
+//                t++;
+//                nodeP ++;
+//            }
+//            NODETYPE *bck = base;
+//            base = temp;
+//            temp = bck;
+//            baseSize = t;
+////          swap temp and base in the end
+//        }
 //        cout << "###### BASE ARRAY ##############";
 //        for(int j=0;j<baseSize;j++){
 //            cout << base[j] << " " ;
 //        }
 //        cout <<"\n";
-        continue;
+
 //      Compute of n Arrays, compute intersection with bit array.
 //      size in char but rounded to int to allow next loop
         int charbitVectorsize = ((baseSize + 32 )/32 * 4);
         unsigned char bitArray[charbitVectorsize * nd0.size_plus];
         memset(bitArray,0,sizeof(unsigned char) * charbitVectorsize * nd0.size_plus );
-
+//        continue;
         for(int j=0;j<nd0.size_plus;j++){
             NODE cNode = ndArray[edgeArray[nd0.offset_plus+j]];
             bitMark_intersect(base, baseSize, &edgeArray[cNode.offset+offsets[j]],
                     cNode.size - offsets[j], &bitArray[charbitVectorsize * j]);
+//          if(cNode.size - offsets[j]<10)continue;
 //          hybrid_intersect(base,baseSize,&edgeArray[cNode.offset+offsets[j]],cNode.size - offsets[j]);
         }
+//        continue;
 //        #####################################################
 //        cout << " #### Bit Matrix debug ### \n";
 //        for(int ii=0;ii < nd0.size_plus;ii++){
