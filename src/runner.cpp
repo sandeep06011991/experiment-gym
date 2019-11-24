@@ -7,7 +7,7 @@
 #include <branch_eval.h>
 #include "graph.h"
 #include "experiments/naive_triangle_counting.h"
-#include "experiments/square_counting.h"
+#include "square_counting.cpp"
 #include "experiments/array_exp.h"
 #include "operators.h"
 using namespace std;
@@ -22,9 +22,13 @@ int main(int argc, char *argv[]) {
 //    Graph * graph = new Graph("data/com-lj.ungraph.txt.ro");
 //    Graph * graph = new Graph("data/data1.graph");
 //    graph->debugGraph();
+//  468774021
+//    4700600
+//   35877389
 
-//    naive_square_counting(graph);
-        bit_vector_based(graph);
+    std::cout << "Total no nodes :" << graph->getNoVertexes() <<"\n";
+    naive_square_counting(graph);
+    bit_vector_based(graph);
 //    graph->countNodesWithPosEdgesGreater(100);
 //    graph->countNodesWithPosEdgesGreater(1000);
 //    graph->countNodesWithPosEdgesGreater(10000);
