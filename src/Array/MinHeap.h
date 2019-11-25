@@ -47,5 +47,29 @@ public:
     }
 };
 
+class MinArray {
 
+    HeapElement * array;
+    int maxSize;
+
+public:
+    int currentSize = 0;
+
+    MinArray(int size);
+
+    MinArray(HeapElement * array,int size);
+
+    void addElement(NODETYPE nd, int arrayId);
+
+    void popElement(HeapElement * target);
+
+    HeapElement peekTopElement();
+
+//    void popTopAndInsertNewElement(NODETYPE nd, int arrayId);
+
+//    void debugHeap();
+
+    ~MinArray(){}
+
+};
 #endif //V2_MINHEAP_H

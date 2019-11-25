@@ -38,4 +38,13 @@ public:
 
     int countNodesWithPosEdgesGreater(int target);
 };
+
+void generateGraphAllCommon(int a_n, int d_n, string outfile);
+
+
+void generateGraphNothingCommon(int a_n, int d_n, string outfile);
+
+void generateGraphSkewNothingCommon(int a_small, int d_small,
+                                    int a_large, int d_large, string outfile);
+
 #endif //V2_GRAPH_H

@@ -14,8 +14,11 @@ int binary_intersect(NODETYPE* arrA, NODETYPE sizeA, NODETYPE* arrB, NODETYPE si
 
 int hybrid_intersect(NODETYPE* arrA, NODETYPE sizeA, NODETYPE* arrB, NODETYPE sizeB);
 
-int bitMark_intersect(NODETYPE* baseA, NODETYPE baseSize, NODETYPE* arrB, NODETYPE sizeB ,unsigned char *pos);
+int naivebitMark_intersect(NODETYPE* baseA, NODETYPE baseSize, NODETYPE* arrB, NODETYPE sizeB ,unsigned char *pos);
 
+int binaryBitMark_intersect(NODETYPE* baseA, NODETYPE baseSize, NODETYPE* arrB, NODETYPE sizeB ,unsigned char *pos);
+
+int hybridBitMark_intersect(NODETYPE* baseA, NODETYPE baseSize, NODETYPE* arrB, NODETYPE sizeB ,unsigned char *pos);
 
 int batched_intersection(NODETYPE* arrA, NODETYPE sizeA,
                          NODETYPE** bArrys, NODETYPE *bsizes, int batchsize, MinHeap * utilityHeap);

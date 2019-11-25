@@ -14,4 +14,10 @@ int  computeNaiveBaseArrayAndReturnSize(NODETYPE **arrays, NODETYPE *arrsizes,NO
 
 int computeBaseArrayWithBinaryAndReturnSize(NODETYPE **arrays, NODETYPE *arrsizes,
         NODETYPE noArrays, NODETYPE * baseArray);
+
+int computeBaseArrayWithMinHeap(NODETYPE **arrays, NODETYPE *arrsizes,
+                                NODETYPE noArrays, NODETYPE * baseArray);
+
+int computeNaiveBaseArrayWithoutDuplicates(NODETYPE **arrays, NODETYPE *arrsizes,NODETYPE noArrays, NODETYPE * baseArray);
+
 #endif //V3_BITVECTORUTIL_H

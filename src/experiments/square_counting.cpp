@@ -25,7 +25,7 @@
 NODETYPE naive_vertex_explore(int i, Graph *graph){
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
-    int s = 0;
+    long long s = 0;
     NODE nd1 = ndArray[i];
     NODETYPE* aNeighourArray = &edgeArray[nd1.offset_plus];
     NODETYPE aSize = nd1.size_plus;
@@ -112,11 +112,15 @@ NODETYPE naive_vertex_explore(int i, Graph *graph){
 int naive_square_counting(Graph *graph){
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
-    int s = 0;
+    long s = 0;
     reset_timer(TOTALNODEPROCESSTIME);
     start_timer(TOTALNODEPROCESSTIME);
-//    for(int i=400000;i<graph->getNoVertexes();i++){
-    for(int i=450000;i<graph->getNoVertexes();i++){// youtube has 470165
+//    for(int i=0;i<graph->getNoVertexes();i++){
+    for(int i=469865;i<469866;i++){// youtube has 470165
+        if(i%10000==0){
+            cout << i << ":" << graph->getNoVertexes() <<"\n";
+        }
+
         NODE nd1 = ndArray[i];
         NODETYPE* aNeighourArray = &edgeArray[nd1.offset_plus];
         NODETYPE aSize = nd1.size_plus;
@@ -130,6 +134,22 @@ int naive_square_counting(Graph *graph){
                     (bNeighbourArray,0, nd2.size, nd1.id);
             offset_plus[ii] = nd2_plus_offset;
         }
+
+//        if(nd1.size_plus >= 20){
+//            cout << i << ":" << nd1.size_plus <<":" <<"\n";
+//            for(int j=0; j<nd1.size_plus ;j++) {
+//                NODETYPE bNode = aNeighourArray[j];
+//                NODE nd2 =  ndArray[bNode];
+//                NODETYPE* bNeighbourArray = &edgeArray[nd2.offset];
+////          Neighbours of nd2 && greater than nd1
+//                unsigned int nd2_plus_offset = offset_plus[j];
+////            bNeighbourArray = &edgeArray[nd2.offset + nd2_plus_offset];
+//                NODETYPE bSize = nd2.size - nd2_plus_offset;
+//                cout << bSize << ":";
+//            }
+//            cout << "\n";
+//            continue;
+//        }
         for(int j=0; j<nd1.size_plus ;j++){
             NODETYPE bNode = aNeighourArray[j];
             NODE nd2 =  ndArray[bNode];
@@ -343,13 +363,16 @@ bool eq_intersect_pair (intersect_pair a,intersect_pair b) {
  * Hybrid (tol-10)     :   37s | 9 (42%)       | 21        | 3253   | 187     | 23078
  * Naive square pattern:   45s | 8  (45%)      | 18        | 4282   | 167     | 29955
  * Bit Vector          :   65s | 6 (21%)       | 28        | 6407   | 104     | 54177
-    Question1 :
-    Are there some ranges of bit vectors where bitvector is better
-    Range    | Hybrid (time) | BitVector
-    400000>  | 27            | 39
-    100000<  | .526          | 2.26
+   Outperforming on vertexes: | Naive | Naive-Bit | Min-Heap
+   1. LJ - VID: i=3172717     | .078  |  .0082    | .018
+   2. LJ - VID: i=3169897     | .14   |  .02      | .03
+   4. ND0->sizes >200 only    | 105   | 28
+   5. ND0->sizes >100 only    | 222   | 150
+   6. ND0->sizes <100 only    | 375   | 965
+   Good in some cases and bad in some cases.
+   When is the minheap useful vs
  * */
-void bit_vector_based(Graph *graph){\
+void bit_vector_based(Graph *graph){
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
     //  Measure average degree
@@ -361,45 +384,84 @@ void bit_vector_based(Graph *graph){\
     NODETYPE a[1000000];
     NODETYPE b[1000000];
     NODETYPE baseArray[maxArraySize];
-    int res = 0;
-
+    long res = 0;
+    /*439559:21:1081
+439711:23:1103
+439726:22:1026
+*/
+    for(int i=469865;i<469866;i++){
 //    for(int i=0;i<graph->getNoVertexes();i++){
-        for(int i=450000;i<graph->getNoVertexes();i++){
+        if(i%10000==0){
+            cout << i << ":" << graph->getNoVertexes() <<"\n";
+        }
         NODE nd0= ndArray[i];
         if(nd0.size_plus == 0) continue;
 //      calculate required offsets
         NODETYPE* arrays[nd0.size_plus];
         NODETYPE arrsize[nd0.size_plus];
         NODETYPE offsets[nd0.size_plus];
-//        if(nd0.size_plus<10)continue;
+        NODETYPE avgSize=0;
         for(int j=0;j<nd0.size_plus;j++){
                 NODE nd1= ndArray[edgeArray[nd0.offset_plus+j]];
                 offsets[j] = binarySearchFirstElementGreaterTarget(&edgeArray[nd1.offset],0,nd1.size,nd0.id);
                 arrays[j] = &edgeArray[nd1.offset + offsets[j]];
                 arrsize[j] = nd1.size - offsets[j];
+                avgSize += arrsize[j];
         }
+        avgSize = avgSize / nd0.size_plus;
+
 
 //      Time till here  < 1s
-//        continue;
+        NODETYPE baseSize;
+        NODETYPE *base;
 //      Union all elements.
 //      copy one neighbourhood into the base array
-        NODETYPE baseSize = computeNaiveBaseArrayAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
-//        NODETYPE  baseSize = computeBaseArrayWithBinaryAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
-        NODETYPE *base = baseArray;
+//        cout << "minheap\n";
+//        NODETYPE baseSize = computeNaiveBaseArrayWithoutDuplicates(arrays, arrsize, nd0.size_plus,baseArray);
+//        if(nd0.size_plus <20){
+//        if(nd0.size_plus >100) {
+//            int s = 0;
+//            for(int j=0;j<nd0.size_plus;j++){
+//                s = s + arrsize[j];
+//            }
+//            cout << i << ":" << nd0.size_plus <<":" << s/nd0.size_plus << "\n";
+//            continue;
+//        }
+//        continue;
+//        if((avgSize > 1000) && (nd0.size_plus > 20)){
+//            cout << i << ":" << nd0.size_plus << ":" << avgSize <<"\n";
+//        }
+//        if(nd0.size_plus <100){
+////            cout << i << ":" << nd0.size_plus <<":" << avgSize <<"\n";
+//            continue;
+//        }
+//cout << avgSize <<" ";
+//        if((nd0.size_plus < 50) && (avgSize < 100)){
+//            if(true){
+//              baseSize = computeNaiveBaseArrayAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
+//            NODETYPE  baseSize = computeBaseArrayWithBinaryAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
+//        }else{
+            baseSize = computeBaseArrayWithMinHeap(arrays, arrsize, nd0.size_plus,baseArray);
+//        }
+        base = baseArray;
+//        if(baseSize > 1000){
+//            cout <<"baseSize" <<  i << ":" << baseSize <<"\n";
+//        }
+//        cout << baseSize << " " << nd0.size_plus << "\n";
 //      Compute of n Arrays, compute intersection with bit array.
 //      size in char but rounded to int to allow next loop
+//      Time till here is 7s
         int charbitVectorsize = ((baseSize + 32 )/32 * 4);
         unsigned char bitArray[charbitVectorsize * nd0.size_plus];
         memset(bitArray,0,sizeof(unsigned char) * charbitVectorsize * nd0.size_plus );
-//        continue;
+
         for(int j=0;j<nd0.size_plus;j++){
             NODE cNode = ndArray[edgeArray[nd0.offset_plus+j]];
-//            bitMark_intersect(base, baseSize, &edgeArray[cNode.offset+offsets[j]],
-//                    cNode.size - offsets[j], &bitArray[charbitVectorsize * j]);
+            hybridBitMark_intersect(base, baseSize, &edgeArray[cNode.offset+offsets[j]],
+                    cNode.size - offsets[j], &bitArray[charbitVectorsize * j]);
 //          if(cNode.size - offsets[j]<10)continue;
-          hybrid_intersect(base,baseSize,&edgeArray[cNode.offset+offsets[j]],cNode.size - offsets[j]);
+//          hybrid_intersect(base,baseSize,&edgeArray[cNode.offset+offsets[j]],cNode.size - offsets[j]);
         }
-//        continue;
 //        #####################################################
 //        cout << " #### Bit Matrix debug ### \n";
 //        for(int ii=0;ii < nd0.size_plus;ii++){
@@ -417,7 +479,7 @@ void bit_vector_based(Graph *graph){\
 //        }
 //      #############################################################
         int s = 0;
-
+//      .000474
 //      Use these bit vectors to compute
         for(int j=0;j<nd0.size_plus;j++){
             int aoffset = charbitVectorsize * j;

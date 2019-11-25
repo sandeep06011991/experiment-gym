@@ -26,16 +26,20 @@ int main(int argc, char *argv[]) {
 //    4700600
 //   35877389
 
-    std::cout << "Total no nodes :" << graph->getNoVertexes() <<"\n";
-    naive_square_counting(graph);
+//    generateGraphNothingCommon(1000,1000,"data/data1.graph");
+//    Graph * graph = new Graph("data/data1.graph");
+//    std::cout << "Total no nodes :" << graph->getNoVertexes() <<"\n";
+//    generateGraphSkewNothingCommon(10,10,1,10000,"data/data1.graph");
     bit_vector_based(graph);
+    naive_square_counting(graph);
+
 //    graph->countNodesWithPosEdgesGreater(100);
 //    graph->countNodesWithPosEdgesGreater(1000);
 //    graph->countNodesWithPosEdgesGreater(10000);
 //    not_naive_square(graph);
 //        sort_square(graph);
 //    hybrid_square(graph,15);
-//         bit_vector_based(graph);
+//
 //    hybrid_square(graph,20);
     //        compare_naive_vs_not_naive(graph);
 //    batched_triangle_counting(graph);
