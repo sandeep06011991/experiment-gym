@@ -438,10 +438,10 @@ void bit_vector_based(Graph *graph){
 //cout << avgSize <<" ";
 //        if((nd0.size_plus < 50) && (avgSize < 100)){
 //            if(true){
-//              baseSize = computeNaiveBaseArrayAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
+              baseSize = computeNaiveBaseArrayAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
 //            NODETYPE  baseSize = computeBaseArrayWithBinaryAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
 //        }else{
-            baseSize = computeBaseArrayWithMinHeap(arrays, arrsize, nd0.size_plus,baseArray);
+//            baseSize = computeBaseArrayWithMinHeap(arrays, arrsize, nd0.size_plus,baseArray);
 //        }
         base = baseArray;
 //        if(baseSize > 1000){
@@ -481,6 +481,9 @@ void bit_vector_based(Graph *graph){
         int s = 0;
 //      .000474
 //      Use these bit vectors to compute
+//      Tile this with int.
+//      FixME: finish tiling this.
+
         for(int j=0;j<nd0.size_plus;j++){
             int aoffset = charbitVectorsize * j;
             for(int k=j+1;k<nd0.size_plus;k++){
