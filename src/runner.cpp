@@ -61,7 +61,8 @@ int main(int argc, char *argv[]) {
 //    dual_bit_matrix_based(graph);
 //     bit_vector_based(graph);
 //test();
-    hybrid_bit_vector_based(graph);
+        redundant_Intersection(graph);
+//    hybrid_bit_vector_based(graph);
 //    graph->countNodesWithPosEdgesGreater(100);
 //    graph->countNodesWithPosEdgesGreater(1000);
 //    graph->countNodesWithPosEdgesGreater(10000);

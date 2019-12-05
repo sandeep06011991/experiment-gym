@@ -28,4 +28,6 @@ int  intersectSets4IntegerAttime(NODETYPE *base, int baseSize, NODETYPE *A, int 
 
 int intersectSets8IntegerAttime(NODETYPE *base, int baseSize, NODETYPE *A, int ASize);
 
+int intersectTrie4Square(NODETYPE *nd2,NODETYPE nd2Size, NODETYPE *nd3, int nd3Size,
+                            NODETYPE *nd1, NODETYPE nd1Size);
 #endif //V3_INTERSECTION_H

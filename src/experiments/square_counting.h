@@ -21,3 +21,4 @@ void hybrid_bit_vector_based(Graph *graph);
 
 void dual_bit_matrix_based(Graph *graph);
 
+void redundant_Intersection(Graph *graph);

@@ -86,7 +86,7 @@ int binary_intersect(NODETYPE* arrA, NODETYPE sizeA, NODETYPE* arrB, NODETYPE si
  * 256 bit (intersect sets of 8 integers at a time) -> 26.97, 25.5, 26.45
  * LIGHT-> 26.03, 30.66, 27.66*/
 int hybrid_intersect(NODETYPE* arrA, NODETYPE sizeA, NODETYPE* arrB, NODETYPE sizeB){
-    int tolerance = 10;
+    int tolerance = 20;
     assert(tolerance > 1);
     if(sizeA > tolerance * sizeB){
 //        return 0;
@@ -152,4 +152,45 @@ int batched_intersection(NODETYPE* arrA, NODETYPE sizeA,
         }
     }
     return k;
+}
+
+/* Naive version*/
+int intersectTrie4Square(NODETYPE *nd2,NODETYPE nd2Size, NODETYPE *nd3, int nd3Size,
+                         NODETYPE *nd1, NODETYPE nd1Size){
+    int resSize = nd3Size;
+    if(nd2Size <nd3Size) resSize = nd2Size;
+
+    NODETYPE interResults[resSize];
+    int j=0;
+    int k=0;
+    int i=0;
+    while((j<nd2Size) && (k<nd3Size)){
+        if(nd2[j] == nd3[k]){
+            interResults[i] = nd2[j];
+            i++;
+            j++;
+            k++;
+            continue;
+        }
+        if(nd2[j]<nd3[k]){
+            j++;
+        }else{
+            k++;
+        }
+    }
+    int total_results = i;
+    i = 0;
+    j = 0;
+    int s = 0;
+    while((i < nd1Size) && (j < total_results)){
+        if(nd1[i] < interResults[j]){
+            s = s + (total_results - j);
+            i++;
+            continue;
+        }
+        if(nd1[i] >= interResults[j]){
+            j++;
+        }
+    }
+    return s;
 }
