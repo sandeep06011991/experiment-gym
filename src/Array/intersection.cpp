@@ -154,19 +154,14 @@ int batched_intersection(NODETYPE* arrA, NODETYPE sizeA,
     return k;
 }
 
-/* Naive version*/
-int intersectTrie4Square(NODETYPE *nd2,NODETYPE nd2Size, NODETYPE *nd3, int nd3Size,
-                         NODETYPE *nd1, NODETYPE nd1Size){
-    int resSize = nd3Size;
-    if(nd2Size <nd3Size) resSize = nd2Size;
-
-    NODETYPE interResults[resSize];
+int naive_intersection_and_store(NODETYPE *nd2,NODETYPE nd2Size, NODETYPE *nd3, int nd3Size,
+                                 NODETYPE *str){
     int j=0;
     int k=0;
     int i=0;
     while((j<nd2Size) && (k<nd3Size)){
         if(nd2[j] == nd3[k]){
-            interResults[i] = nd2[j];
+            str[i] = nd2[j];
             i++;
             j++;
             k++;
@@ -178,9 +173,51 @@ int intersectTrie4Square(NODETYPE *nd2,NODETYPE nd2Size, NODETYPE *nd3, int nd3S
             k++;
         }
     }
-    int total_results = i;
-    i = 0;
-    j = 0;
+    return i;
+}
+
+int binary_intersection_and_store(NODETYPE *nd2,NODETYPE nd2Size, NODETYPE *nd3, int nd3Size,
+                                 NODETYPE *str){
+    assert(nd2Size > nd3Size);
+    int j=0;
+    int k=0;
+    int i=0;
+    while((j<nd2Size) && (k<nd3Size)){
+        if(nd2[j] == nd3[k]){
+            str[i] = nd2[j];
+            i++;
+            j++;
+            k++;
+            continue;
+        }
+        if(nd2[j]<nd3[k]){
+            j = binarySearchFirstElementGreaterOrEqualTarget(nd2,j+1,nd2Size,nd3[k]);
+//            j++;
+        }else{
+            k++;
+        }
+    }
+    return i;
+}
+/* Naive version*/
+int intersectTrie4Square(NODETYPE *nd2,NODETYPE nd2Size, NODETYPE *nd3, int nd3Size,
+                         NODETYPE *nd1, NODETYPE nd1Size){
+    int resSize = nd3Size;
+    if(nd2Size <nd3Size) resSize = nd2Size;
+    int skewFactor = 20;
+    NODETYPE interResults[resSize];
+    int j=0;
+    int i=0;
+    int total_results;
+    if(nd2Size * skewFactor < nd3Size){
+        total_results = binary_intersection_and_store(nd3, nd3Size,nd2,nd2Size,  interResults);
+    }else{
+        if(nd3Size * skewFactor < nd2Size){
+            total_results = binary_intersection_and_store(nd2,nd2Size,nd3, nd3Size,interResults);
+        }else{
+            total_results = naive_intersection_and_store(nd2,nd2Size, nd3, nd3Size, interResults);
+        }
+    }
     int s = 0;
     while((i < nd1Size) && (j < total_results)){
         if(nd1[i] < interResults[j]){

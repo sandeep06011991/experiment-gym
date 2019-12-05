@@ -35,9 +35,32 @@ bool compare(triple a, triple b){
     if(a.nd3 != b.nd3) return a.nd3 < b.nd3;
     return a.nd1 < b.nd1;
 }
+// For live journal
+//triple cache[20000000];
+//trie Trie[2000000];
+//NODETYPE nd1Array[20000000];
+// For youtube journal
 triple cache[11000000];
 trie Trie[1000000];
 NODETYPE nd1Array[11000000];
+/* Experiment:      Filter                  | naive intersection  | Current Baseline (LIGHT)
+ * 1. Youtube :      (nd1 | nd2) > 500      |         18s         |  27s
+ * 1. Youtube :      (nd1 | nd2) > 100      |         16.4s       |  27s
+ * 2. Live Journal:   (nd1 & nd2) > 500     |         595s        |  867s
+ * Questions to Ask/Investigate.
+ * 1. Recheck EmptyHeaded time : 192s
+ *  ( EmptyHeaded only considers directed graphs, numbers for directed  square graph)
+ * 2. Performance BreakDown for youtube graph.
+ *  ### Low frequency intersection adj -10.88s
+ *  ### Sorting time - .9s
+ *  ### Process Trie - 8.6s
+ *  Total Triples generated 2570050.
+ * 3. Intermediate Compression.
+ * FixME:
+ * a. Add a gallopping based trie expansion.
+ * b. Add a simd based trie expansion.
+ *
+ * */
 void redundant_Intersection(Graph *graph){
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
@@ -94,7 +117,7 @@ void redundant_Intersection(Graph *graph){
                     cache[tc].nd1 = nd1.id;
                     cache[tc].nd3 = nd3.id;
                     tc++;
-                    assert(tc<11000000);
+                    assert(tc<20000000);
                     continue;
                 }
                 s = s + hybrid_intersect(&cNeighbourArray[nd3_plus_offset], cSize,&bNeighbourArray[nd2_plus_offset], bSize);
@@ -133,7 +156,7 @@ void redundant_Intersection(Graph *graph){
             Trie[cTrie].nd3 = prev.nd3;
             Trie[cTrie].start = i;
             Trie[cTrie].size = 1;
-            assert(cTrie < 1000000);
+            assert(cTrie < 2000000);
         }
     }
     cout << "unique triples " << cTrie <<"\n";
