@@ -10,14 +10,26 @@
 const int maxArraySize = 1000000;
 
 
-int  computeNaiveBaseArrayAndReturnSize(NODETYPE **arrays, NODETYPE *arrsizes,NODETYPE noArrays, NODETYPE* baseArray);
+int  computeNaiveBaseArrayAndReturnSize(NODETYPE **arrays, NODETYPE *arrsizes,
+        NODETYPE noArrays, NODETYPE* baseArray);
 
-int computeBaseArrayWithBinaryAndReturnSize(NODETYPE **arrays, NODETYPE *arrsizes,
-        NODETYPE noArrays, NODETYPE * baseArray);
+int  computeNaiveBaseArraySkew(NODETYPE **arrays, NODETYPE *arrsizes,
+                                        NODETYPE noArrays, NODETYPE* baseArray);
 
 int computeBaseArrayWithMinHeap(NODETYPE **arrays, NODETYPE *arrsizes,
                                 NODETYPE noArrays, NODETYPE * baseArray);
 
-int computeNaiveBaseArrayWithoutDuplicates(NODETYPE **arrays, NODETYPE *arrsizes,NODETYPE noArrays, NODETYPE * baseArray);
+int computeNaiveBaseArrayWithDuplicates(NODETYPE **arrays, NODETYPE *arrsizes,
+            NODETYPE noArrays, NODETYPE * baseArray);
+
+int computeBaseArrayAndBitMatrixReturnSize(NODETYPE **arrays, NODETYPE *arrsizes,
+                                           NODETYPE noArrays, NODETYPE * baseArray);
+
+int computeBaseArrayUsingBinaryRecursion(NODETYPE **arrays, NODETYPE *arrsizes, NODETYPE noArrays, NODETYPE * baseArray);
+
+
+int bloomfilter_based_baseArray(NODETYPE **arrays, NODETYPE *arrsizes,NODETYPE noArrays, NODETYPE * baseArray);
+
+int usingTrivialSort(NODETYPE **arrays, NODETYPE *arrsizes,NODETYPE noArrays, NODETYPE * baseArray);
 
 #endif //V3_BITVECTORUTIL_H

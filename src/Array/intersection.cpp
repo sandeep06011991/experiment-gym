@@ -89,9 +89,11 @@ int hybrid_intersect(NODETYPE* arrA, NODETYPE sizeA, NODETYPE* arrB, NODETYPE si
     int tolerance = 10;
     assert(tolerance > 1);
     if(sizeA > tolerance * sizeB){
+//        return 0;
         return binary_intersect(arrA,sizeA,arrB,sizeB);
     }
     if(sizeB > tolerance * sizeA){
+//        return 0;
         return binary_intersect(arrB,sizeB,arrA,sizeA);
     }
 //    return 0;

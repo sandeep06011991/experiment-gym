@@ -16,3 +16,8 @@ int naive_square_counting(Graph *graph);
 NODETYPE not_naive_vertex_explore(int i, Graph *graph);
 
 void bit_vector_based(Graph *graph);
+
+void hybrid_bit_vector_based(Graph *graph);
+
+void dual_bit_matrix_based(Graph *graph);
+

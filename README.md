@@ -4,11 +4,12 @@ Repository contains tools required to test various hypothesis.
 Components which I will expect will reused will have unit tests
 
 ## Current sprint
---> Come closer to the single threaded version of the baseline.
--------> As guided by Yi !!!!
-        1. Replace binary search with gallopping search
-        2. Increase register width to 256 bits from 128 bits.
-
+---- > Optimize square construction.
+                              Naive(48)              MinHeap
+Base Construction             16.9                      50.7
+Bit vector Construction       25.384                    12.40
+Bit Intersection.             4.8                       1.96
+Estimated Cost of construction: 17s
 
 1. Finish Square and capture measurements (Start 2:17)
 2. Do experiment measuring cost of division with and without powers of 2.

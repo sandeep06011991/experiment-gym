@@ -46,7 +46,7 @@ void stop_timer(TIMERS tname){
 }
 
 double get_timer(TIMERS tname){
-    return timers[tname];
+    return save[tname];
 }
 
 void print_statistics(){

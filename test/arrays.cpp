@@ -57,3 +57,19 @@ TEST(searchg, gallopping_search_first_Greater) {
     }
 }
 
+TEST(perfunion, perf) {
+    int max = 100;
+    int noArrays = 100;
+    int *arrAddr[noArrays];
+    int arrSizes[noArrays];
+    int arr[max*noArrays];
+    for(int i=0;i<noArrays;i++){
+        arrAddr[i] = &arr[max*i];
+        arrSizes[i] = max;
+    }
+    for(int i=0;i<max*noArrays;i++){
+        arr[i] = i;
+    }
+    EXPECT_EQ(1,2);
+}
+

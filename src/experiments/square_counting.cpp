@@ -1,4 +1,4 @@
-//
+    //
 // Created by sandeep on 1/11/19.
 //
 
@@ -15,6 +15,9 @@
 #include <BitDictionary.h>
 #include <bitset>
 #include <BitVectorUtil.h>
+#include "immintrin.h"
+#include <cmath>
+#include <x86intrin.h>
 #include "timer.h"
 
 #ifndef V3_SQUARE_COUNTING_H
@@ -22,6 +25,10 @@
 
 #endif //V3_SQUARE_COUNTING_H
 
+/* Explore seed vertex: i using the naive tecnhique.
+ * This section is used to identify if for any vertexes different approaches are more effective.
+ * However results where not anyway conclusive.
+ * */
 NODETYPE naive_vertex_explore(int i, Graph *graph){
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
@@ -100,6 +107,7 @@ NODETYPE naive_vertex_explore(int i, Graph *graph){
  *
  *  2. Overall cache-miss rate is 30% and branch miss prediction is 4%.
  *
+ *  3. Skipping skewed instructions only saves only 7seconds.
  *  Note:
  *  It can be observed that simd alone cannot give a speed up. Then how did LIGHT beat emptyheaded,
  *  which uses some encoding. On rechecking the paper I realized they skipped some experiments
@@ -113,11 +121,12 @@ int naive_square_counting(Graph *graph){
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
     long s = 0;
+    int t=0;
     reset_timer(TOTALNODEPROCESSTIME);
     start_timer(TOTALNODEPROCESSTIME);
-//    for(int i=0;i<graph->getNoVertexes();i++){
-    for(int i=469865;i<469866;i++){// youtube has 470165
-        if(i%10000==0){
+    for(int i=0;i<graph->getNoVertexes();i++){
+//    for(int i=460000;i<460050;i++){// youtube has 470165
+        if(i%100000==0){
             cout << i << ":" << graph->getNoVertexes() <<"\n";
         }
 
@@ -134,22 +143,6 @@ int naive_square_counting(Graph *graph){
                     (bNeighbourArray,0, nd2.size, nd1.id);
             offset_plus[ii] = nd2_plus_offset;
         }
-
-//        if(nd1.size_plus >= 20){
-//            cout << i << ":" << nd1.size_plus <<":" <<"\n";
-//            for(int j=0; j<nd1.size_plus ;j++) {
-//                NODETYPE bNode = aNeighourArray[j];
-//                NODE nd2 =  ndArray[bNode];
-//                NODETYPE* bNeighbourArray = &edgeArray[nd2.offset];
-////          Neighbours of nd2 && greater than nd1
-//                unsigned int nd2_plus_offset = offset_plus[j];
-////            bNeighbourArray = &edgeArray[nd2.offset + nd2_plus_offset];
-//                NODETYPE bSize = nd2.size - nd2_plus_offset;
-//                cout << bSize << ":";
-//            }
-//            cout << "\n";
-//            continue;
-//        }
         for(int j=0; j<nd1.size_plus ;j++){
             NODETYPE bNode = aNeighourArray[j];
             NODE nd2 =  ndArray[bNode];
@@ -185,8 +178,9 @@ int naive_square_counting(Graph *graph){
     return s;
 }
 
-/* Square counting using heap unify , performing the union of multiple
- * adjacency lists */
+/* Infrastructure to explore different vertex exploration schemes.
+ * Again Square counting using heap unify , performing the union of multiple
+ * adjacency lists. I tried heap unify which was mostly bad.  */
 NODETYPE not_naive_vertex_explore(int i, Graph *graph){
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
@@ -258,7 +252,7 @@ NODETYPE not_naive_vertex_explore(int i, Graph *graph){
 
     return s;
 }
-
+/* Performance much worse : 60s > */
 int not_naive_square(Graph *graph){
     init_metrics();
     NODE * ndArray = graph->getNodeArray();
@@ -275,7 +269,8 @@ int not_naive_square(Graph *graph){
 
 }
 
-/*Very important experiment log this. */
+/* Measure different ways of exploring seed vertex.
+ * Naive was always the most effective. */
 void compare_naive_vs_not_naive(Graph *graph){
     init_metrics();
     NODE * ndArray = graph->getNodeArray();
@@ -286,26 +281,26 @@ void compare_naive_vs_not_naive(Graph *graph){
     int sd_eff = 0;
     int sd_ineff = 0;
 //  Measure average degree
-    for(int i=400000;i<graph->getNoVertexes();i++){
+    for(int i=0;i<graph->getNoVertexes();i++){
 //    for(int i=6316;i<6317;i++){
         NODE nd = ndArray[i];
         double s_n1 = std::clock();
         naive_vertex_explore(i,graph);
         double e_n1 = std::clock();
-//        double s_n2 = std::clock();
-//        not_naive_vertex_explore(i,graph);
-//        double e_n2 = std::clock();
-//        double naive = e_n1 - s_n1;
-//        double not_naive = e_n2 - s_n2;
-//        if(not_naive <  .1 * naive){
-////            cout << i << "\n";
-////            cout << "Time:" << naive << " Not naive: " << not_naive << "\n";
-//            sd_eff = sd_eff + ndArray[i].size_plus;
-//            eff ++ ;
-//        }else{
-//            sd_ineff = sd_ineff + ndArray[i].size_plus;
-//            ineff ++ ;
-//        }
+        double s_n2 = std::clock();
+        not_naive_vertex_explore(i,graph);
+        double e_n2 = std::clock();
+        double naive = e_n1 - s_n1;
+        double not_naive = e_n2 - s_n2;
+        if(not_naive <  .1 * naive){
+//            cout << i << "\n";
+//            cout << "Time:" << naive << " Not naive: " << not_naive << "\n";
+            sd_eff = sd_eff + ndArray[i].size_plus;
+            eff ++ ;
+        }else{
+            sd_ineff = sd_ineff + ndArray[i].size_plus;
+            ineff ++ ;
+        }
 
     }
     cout << "Not naive better:" << eff << " Naive better:" << ineff <<" \n";
@@ -313,6 +308,8 @@ void compare_naive_vs_not_naive(Graph *graph){
 //    cout << "average degree naive" << (sd_ineff*1.0)/ineff <<" \n";
 }
 
+// Min heap is a bad idea. Overhead of insertion is way too much.
+// For no vertexes was the not naive approach working.
 void hybrid_square(Graph *graph,int skew){
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
@@ -350,27 +347,35 @@ bool eq_intersect_pair (intersect_pair a,intersect_pair b) {
     return (a.a == b.a) && (a.b == b.b) ;
 }
 
+
 /* Do not use external library such as malloc unless absolutely required. */
 /* Bit Vector square exploration
- * TODO: Experiment: Compare performance with bit vectors vs naive approach
- * Performance break down:
- * Base array construction time: 11s
- * base array Intersection time: 40s
- * Intersection time : 10s
+ * Function to explore different sub components such as
+ * Base array construction, bitVector construction and intersection cost.
+ * IMPORTANT: DONOT change this structure.
+ * Experiment with different kinds of base constructions, bitconstructions and intersection const.
+ * DONOT Evaluate hybrid methods
  * Current best simd vs non-simd range : 25-35s
  * Profile
- * Experiment:         Time(s) | cch-miss(Cr.) | cache-ref | branch | br-miss | Instruc
+ * Experiment:[ref     Time(s) | cch-miss(Cr.) | cache-ref | branch | br-miss | Instruc
  * Hybrid (tol-10)     :   37s | 9 (42%)       | 21        | 3253   | 187     | 23078
  * Naive square pattern:   45s | 8  (45%)      | 18        | 4282   | 167     | 29955
  * Bit Vector          :   65s | 6 (21%)       | 28        | 6407   | 104     | 54177
-   Outperforming on vertexes: | Naive | Naive-Bit | Min-Heap
-   1. LJ - VID: i=3172717     | .078  |  .0082    | .018
-   2. LJ - VID: i=3169897     | .14   |  .02      | .03
-   4. ND0->sizes >200 only    | 105   | 28
-   5. ND0->sizes >100 only    | 222   | 150
-   6. ND0->sizes <100 only    | 375   | 965
-   Good in some cases and bad in some cases.
-   When is the minheap useful vs
+   OBSERVATIONS.
+   Experiment:         BaseArray | BitVector | BitProcess | TotalTime
+    Naive base unique     14.4   | 23        | 3.96       | 40.5
+    Naive base duplicate  19.7   | 13        | 1.60       | 33.55
+    Min Heap              50.56  | 15        | 1.81       | 66.21
+    Infrafor bitmat       22.9   | 15        | 1.74       | 38
+    RecursiveUnion        18     | 21        | 1.95       | 43s
+
+   1. BitVector processing time is a small fraction of total time less than 5seconds, total time of 2/44s.
+  Cost of construction is too high. using the naive base array construction, time taken for base array construction
+  is 14.4, BitVector - 21.55 and BitMat process - 3.96
+  STATUS -> Matching .. NON-SIMD.
+
+   2. Naive approach works for the better invariably in almost all cases.
+
  * */
 void bit_vector_based(Graph *graph){
     NODE * ndArray = graph->getNodeArray();
@@ -385,17 +390,14 @@ void bit_vector_based(Graph *graph){
     NODETYPE b[1000000];
     NODETYPE baseArray[maxArraySize];
     long res = 0;
-    /*439559:21:1081
-439711:23:1103
-439726:22:1026
-*/
-    for(int i=469865;i<469866;i++){
-//    for(int i=0;i<graph->getNoVertexes();i++){
+
+//    for(int i=0;i<10;i++){
+    for(int i=0;i<graph->getNoVertexes();i++){
         if(i%10000==0){
             cout << i << ":" << graph->getNoVertexes() <<"\n";
         }
         NODE nd0= ndArray[i];
-        if(nd0.size_plus == 0) continue;
+        if(nd0.size_plus < 2) continue;
 //      calculate required offsets
         NODETYPE* arrays[nd0.size_plus];
         NODETYPE arrsize[nd0.size_plus];
@@ -416,45 +418,25 @@ void bit_vector_based(Graph *graph){
         NODETYPE *base;
 //      Union all elements.
 //      copy one neighbourhood into the base array
-//        cout << "minheap\n";
-//        NODETYPE baseSize = computeNaiveBaseArrayWithoutDuplicates(arrays, arrsize, nd0.size_plus,baseArray);
-//        if(nd0.size_plus <20){
-//        if(nd0.size_plus >100) {
-//            int s = 0;
-//            for(int j=0;j<nd0.size_plus;j++){
-//                s = s + arrsize[j];
-//            }
-//            cout << i << ":" << nd0.size_plus <<":" << s/nd0.size_plus << "\n";
-//            continue;
-//        }
-//        continue;
-//        if((avgSize > 1000) && (nd0.size_plus > 20)){
-//            cout << i << ":" << nd0.size_plus << ":" << avgSize <<"\n";
-//        }
-//        if(nd0.size_plus <100){
-////            cout << i << ":" << nd0.size_plus <<":" << avgSize <<"\n";
-//            continue;
-//        }
-//cout << avgSize <<" ";
-//        if((nd0.size_plus < 50) && (avgSize < 100)){
-//            if(true){
-              baseSize = computeNaiveBaseArrayAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
-//            NODETYPE  baseSize = computeBaseArrayWithBinaryAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
-//        }else{
+//        if(nd0.size_plus < 10)continue;
+//        start_timer(BITMATRIXCONSTRUCTION);
+//        baseSize = computeNaiveBaseArrayWithDuplicates(arrays, arrsize, nd0.size_plus,baseArray);
+             baseSize = usingTrivialSort(arrays, arrsize, nd0.size_plus,baseArray);
+//            baseSize = computeNaiveBaseArrayAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
+//            baseSize = bloomfilter_based_baseArray(arrays, arrsize, nd0.size_plus,baseArray);
 //            baseSize = computeBaseArrayWithMinHeap(arrays, arrsize, nd0.size_plus,baseArray);
-//        }
+//            baseSize = computeBaseArrayAndBitMatrixReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
+//            baseSize = computeNaiveBaseArrayAndReturnSize(arraysLarge,arrsizeLarge,t,baseArray);
+//            baseSize = computeBaseArrayUsingBinaryRecursion(arrays, arrsize, nd0.size_plus,baseArray);
+//              baseSize = computeNaiveBaseArraySkew(arrays, arrsize, nd0.size_plus,baseArray);
         base = baseArray;
-//        if(baseSize > 1000){
-//            cout <<"baseSize" <<  i << ":" << baseSize <<"\n";
-//        }
-//        cout << baseSize << " " << nd0.size_plus << "\n";
 //      Compute of n Arrays, compute intersection with bit array.
 //      size in char but rounded to int to allow next loop
 //      Time till here is 7s
         int charbitVectorsize = ((baseSize + 32 )/32 * 4);
         unsigned char bitArray[charbitVectorsize * nd0.size_plus];
         memset(bitArray,0,sizeof(unsigned char) * charbitVectorsize * nd0.size_plus );
-
+//        start_timer(BITSIMDINTERSECTIONTIME);
         for(int j=0;j<nd0.size_plus;j++){
             NODE cNode = ndArray[edgeArray[nd0.offset_plus+j]];
             hybridBitMark_intersect(base, baseSize, &edgeArray[cNode.offset+offsets[j]],
@@ -462,6 +444,8 @@ void bit_vector_based(Graph *graph){
 //          if(cNode.size - offsets[j]<10)continue;
 //          hybrid_intersect(base,baseSize,&edgeArray[cNode.offset+offsets[j]],cNode.size - offsets[j]);
         }
+//        stop_timer(BITSIMDINTERSECTIONTIME);
+//        continue;
 //        #####################################################
 //        cout << " #### Bit Matrix debug ### \n";
 //        for(int ii=0;ii < nd0.size_plus;ii++){
@@ -479,32 +463,266 @@ void bit_vector_based(Graph *graph){
 //        }
 //      #############################################################
         int s = 0;
-//      .000474
-//      Use these bit vectors to compute
-//      Tile this with int.
-//      FixME: finish tiling this.
+//
+/*      Experiment : For a youtube graph
+ *      Using char and dictionary : 22.8
+ *      Using int : .9*/
 
+//        start_timer(BITCHARINTERSECTIONTIME);
+//        for(int j=0;j<nd0.size_plus;j++){
+//            int aoffset = charbitVectorsize * j;
+//            for(int k=j+1;k<nd0.size_plus;k++){
+//                int boffset = charbitVectorsize * k;
+//                for(int t=0;t<charbitVectorsize;t++){
+//                   unsigned char x = bitArray[aoffset + t] & bitArray[boffset + t];
+//                   res = res + bitDictionary->countSetBits(x);
+//                }
+//            }
+//        }
+//      USing integer.
         for(int j=0;j<nd0.size_plus;j++){
             int aoffset = charbitVectorsize * j;
+            unsigned int *ap = (unsigned int *)&bitArray[aoffset];
             for(int k=j+1;k<nd0.size_plus;k++){
                 int boffset = charbitVectorsize * k;
-                for(int t=0;t<charbitVectorsize;t++){
-                   unsigned char x = bitArray[aoffset + t] & bitArray[boffset + t];
-                   res = res + bitDictionary->countSetBits(x);
+                unsigned int *bp = (unsigned int *)&bitArray[boffset];
+                for(int t=0;t<charbitVectorsize/4;t=t+1){
+                      res = res + _popcnt32(bp[t] & ap[t]);
+//                    unsigned char x = bitArray[aoffset + t] & bitArray[boffset + t];
+//                    res = res + bitDictionary->countSetBits(x);
                 }
             }
         }
-
-
+//      Using SIMD Integer.
+//        stop_timer(BITCHARINTERSECTIONTIME);
     }
     cout << "total squares found:" << res << "\n";
     stop_timer(TOTALNODEPROCESSTIME);
     cout << "total base array time " << get_timer(TOTALNODEPROCESSTIME) <<"\n";
-
+    cout << "BitMatrix timer" << get_timer(BITMATRIXCONSTRUCTION) <<"\n";
+    cout << "Hybrid timer" << get_timer(BITSIMDINTERSECTIONTIME) <<"\n";
+    cout << "Bit char timer "<< get_timer(BITCHARINTERSECTIONTIME) <<"\n";
 }
 
+/* Idea experiment:
+ * Have multiple bit matrixes,
+ * one small and one big.
+ * This experiment also failed with total performance much worse than naive.*/
+void dual_bit_matrix_based(Graph *graph){
+    NODE * ndArray = graph->getNodeArray();
+    NODETYPE * edgeArray = graph->getEdgeArray();
+    //  Measure average degree
+    init_metrics();
+    BitDictionary *bitDictionary = new BitDictionary();
+//    bitDictionary->visualize();
+    reset_timer(TOTALNODEPROCESSTIME);
+    start_timer(TOTALNODEPROCESSTIME);
+//    NODETYPE a[1000000];
+//    NODETYPE b[1000000];
+    NODETYPE baseArraySmall[maxArraySize];
+    NODETYPE baseArrayLarge[maxArraySize];
 
-/* Idea2 : Query push down with sort*/
+    long res = 0;
+
+    for(int i=460000;i<460050;i++){
+//    for(int i=450000;i<graph->getNoVertexes();i++){
+        if(i%1000==0){
+            cout << i << ":" << graph->getNoVertexes() <<"\n";
+        }
+
+        NODE nd0= ndArray[i];
+        if(nd0.size_plus == 0) continue;
+//      calculate required offsets
+        NODETYPE* arrays[nd0.size_plus];
+        NODETYPE arrsize[nd0.size_plus];
+        NODETYPE offsets[nd0.size_plus];
+        NODETYPE avgSize=0;
+        for(int j=0;j<nd0.size_plus;j++){
+            NODE nd1= ndArray[edgeArray[nd0.offset_plus+j]];
+            offsets[j] = binarySearchFirstElementGreaterTarget(&edgeArray[nd1.offset],0,nd1.size,nd0.id);
+            arrays[j] = &edgeArray[nd1.offset + offsets[j]];
+            arrsize[j] = nd1.size - offsets[j];
+            avgSize += arrsize[j];
+        }
+
+        avgSize = avgSize / nd0.size_plus;
+        bool isLarge[nd0.size_plus];
+        bool alt_index[nd0.size_plus];
+
+        NODETYPE* arraysLarge[nd0.size_plus];
+        NODETYPE arrsizeLarge[nd0.size_plus];
+
+        NODETYPE* arraysSmall[nd0.size_plus];
+        NODETYPE arrsizeSmall[nd0.size_plus];
+        int l_nodes = 0;
+        int s_nodes= 0;
+//        cout << "sizes:";
+        for(int j=0;j<nd0.size_plus;j++){
+//            cout << arrsize[j] <<" ";
+            if((arrsize[j] < 800) && (arrsize[j] > 100)){
+                arraysLarge[l_nodes] = arrays[j];
+                arrsizeLarge[l_nodes] = arrsize[j];
+                isLarge[j] = true;
+                alt_index[j] = l_nodes;
+                l_nodes++;
+            }else{
+                arraysSmall[s_nodes] = arrays[j];
+                arrsizeSmall[s_nodes] = arrsize[j];
+                isLarge[j] = false;
+                alt_index[j] = false;
+                s_nodes++;
+            }
+        }
+//        cout << "\n";
+//      Time till here  < 1s
+//        NODETYPE baseSize;
+//        NODETYPE *base;
+//        continue;
+//      Union all elements.
+//        start_timer(BITMATRIXCONSTRUCTION);
+        /* Naive can compute these 2 vertex in < e-06, best case is 1.5e-5 by the it comes here.
+         * */
+//        if((nd0.size_plus < 100) ){
+//            baseSize = computeBaseArrayWithMinHeap(arrays, arrsize, nd0.size_plus,baseArray);
+//      .09
+//        NODETYPE baseSizeLarge = computeBaseArrayWithMinHeap(arraysLarge, arrsizeLarge,l_nodes, baseArrayLarge);
+//            baseSize = computeBaseArrayAndBitMatrixReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
+
+        NODETYPE baseSizeLarge = computeNaiveBaseArrayAndReturnSize(arraysLarge,arrsizeLarge,l_nodes,baseArrayLarge);
+
+        //        NODETYPE baseSizeSmall = computeNaiveBaseArrayAndReturnSize(arraysSmall,arrsizeSmall,s_nodes,baseArraySmall);
+
+//        NODETYPE baseSizeLarge = computeBaseArrayAndBitMatrixReturnSize(arraysLarge,arrsizeLarge,l_nodes,baseArrayLarge);
+//        NODETYPE baseSizeSmall = computeBaseArrayAndBitMatrixReturnSize(arraysSmall,arrsizeSmall,s_nodes,baseArraySmall);
+//        if(baseSizeLarge>1000){
+//            cout << baseSizeLarge << " " << baseSizeSmall <<"\n";
+//        }
+        //        }
+
+        NODETYPE  baseSizeSmall = 0;
+//        BitMatrix Small Timer: 12.6s
+//        continue;
+//        stop_timer(BITMATRIXCONSTRUCTION);
+
+//        base = baseArray;
+//        if(baseSize > 1000){
+//            cout <<"baseSize" <<  i << ":" << baseSize <<"\n";
+//        }
+        //      Compute of n Arrays, compute intersection with bit array.
+//      size in char but rounded to int to allow next loop
+//      Time till here is 7s
+        int smallcharbitVectorsize = ((baseSizeSmall + 32 )/32 * 4);
+        unsigned char bitArraysmall[smallcharbitVectorsize * s_nodes];
+//        memset(bitArraysmall,0,sizeof(unsigned char) * smallcharbitVectorsize * s_nodes );
+        int largecharbitVectorsize = ((baseSizeLarge + 32 )/32 * 4);
+        unsigned char bitArrayLarge[largecharbitVectorsize * l_nodes];
+        memset(bitArrayLarge,0,sizeof(unsigned char) * largecharbitVectorsize * l_nodes );
+
+//        start_timer(BITSIMDINTERSECTIONTIME);
+        for(int j=0;j<nd0.size_plus;j++){
+            NODE cNode = ndArray[edgeArray[nd0.offset_plus+j]];
+            if(isLarge[j]){
+                hybridBitMark_intersect(baseArrayLarge, baseSizeLarge, &edgeArray[cNode.offset+offsets[j]],
+                                        cNode.size - offsets[j],
+                                        &bitArrayLarge[largecharbitVectorsize * alt_index[j]]);
+            }else{
+//                hybridBitMark_intersect(baseArraySmall, baseSizeSmall, &edgeArray[cNode.offset+offsets[j]],
+//                                        cNode.size - offsets[j],
+//                                        &bitArraysmall[smallcharbitVectorsize * alt_index[j]]);
+
+            }
+//          if(cNode.size - offsets[j]<10)continue;
+//          hybrid_intersect(base,baseSize,&edgeArray[cNode.offset+offsets[j]],cNode.size - offsets[j]);
+        }
+//        stop_timer(BITSIMDINTERSECTIONTIME);
+        continue;
+//        #####################################################
+//        cout << " #### Bit Matrix debug ### \n";
+//        for(int ii=0;ii < nd0.size_plus;ii++){
+//            NODE t = ndArray[edgeArray[nd0.offset_plus + ii]];
+//            cout << t.id << ": ";
+//            for(int j=offsets[ii]; j <t.size;j++){
+//                cout << edgeArray[t.offset + j] <<" ";
+//            }
+//            cout <<"\n";
+//
+//            for(int j=0;j<charbitVectorsize;j++){
+//                cout <<bitset<8>(bitArray[charbitVectorsize *ii +j]);
+//            }
+//            cout <<"\n";
+//        }
+//      #############################################################
+         int s = 0;
+//
+/*      Experiment : For a youtube graph
+ *      Using char and dictionary : 22.8
+ *      Using int : .9*/
+
+//        start_timer(BITCHARINTERSECTIONTIME);
+//        for(int j=0;j<nd0.size_plus;j++){
+//            int aoffset = charbitVectorsize * j;
+//            for(int k=j+1;k<nd0.size_plus;k++){
+//                int boffset = charbitVectorsize * k;
+//                for(int t=0;t<charbitVectorsize;t++){
+//                   unsigned char x = bitArray[aoffset + t] & bitArray[boffset + t];
+//                   res = res + bitDictionary->countSetBits(x);
+//                }
+//            }
+//        }
+//      USing integer.
+        int aoffset; int boffset;
+        unsigned int *ap;
+        unsigned int *bp;
+        for(int j=0;j<nd0.size_plus;j++){
+            if(isLarge[j]){
+                aoffset = largecharbitVectorsize * alt_index[j];
+                ap = (unsigned int *)&bitArrayLarge[aoffset];
+            }else{
+                aoffset = smallcharbitVectorsize * alt_index[j];
+                ap = (unsigned int *)& bitArraysmall[aoffset];
+            }
+            for(int k=j+1;k<nd0.size_plus;k++){
+                if(isLarge[k]){
+                    boffset = largecharbitVectorsize * alt_index[k];
+                    bp = (unsigned int *)&bitArrayLarge[boffset];
+                }else{
+                    boffset = smallcharbitVectorsize * alt_index[k];
+                    bp = (unsigned int *)& bitArraysmall[boffset];
+                }
+                if((isLarge[j])&&(isLarge[k])){
+//               Saves .005s
+                    for(int t=0;t<largecharbitVectorsize/4;t=t+1){
+                        res = res + _popcnt32(bp[t] & ap[t]);
+
+//                    unsigned char x = bitArray[aoffset + t] & bitArray[boffset + t];
+//                    res = res + bitDictionary->countSetBits(x);
+                    }
+                    continue;
+                }
+//                if((!isLarge[j])&&(!isLarge[k])){
+//                    for(int t=0;t<smallcharbitVectorsize/4;t=t+1){
+//                        res = res + _popcnt32(bp[t] & ap[t]);
+//
+////                    unsigned char x = bitArray[aoffset + t] & bitArray[boffset + t];
+////                    res = res + bitDictionary->countSetBits(x);
+//                    }
+//                    continue;
+//                }
+                res = res + hybrid_intersect(arrays[j],arrsize[j],arrays[k],arrsize[k]);
+            }
+        }
+//      Using SIMD Integer.
+//        stop_timer(BITCHARINTERSECTIONTIME);
+    }
+    cout << "total squares found:" << res << "\n";
+    stop_timer(TOTALNODEPROCESSTIME);
+    cout << "total base array time " << get_timer(TOTALNODEPROCESSTIME) <<"\n";
+    cout << "BitMatrix timer" << get_timer(BITMATRIXCONSTRUCTION) <<"\n";
+    cout << "Hybrid timer" << get_timer(BITSIMDINTERSECTIONTIME) <<"\n";
+    cout << "Bit char timer "<< get_timer(BITCHARINTERSECTIONTIME) <<"\n";
+}
+
+/* Move this to newxt function: Query push down with sort*/
 void sort_square(Graph *graph){
     NODE * ndArray = graph->getNodeArray();
     NODETYPE * edgeArray = graph->getEdgeArray();
@@ -560,4 +778,190 @@ void sort_square(Graph *graph){
 //  std::cout << "sum found :" << s << '\n';
     stop_timer(TOTALNODEPROCESSTIME);
     cout << "total hybrid time " << get_timer(TOTALNODEPROCESSTIME) <<"\n";
+}
+
+
+/*  Infrastructure to evaluate
+ *  Question: For how many vertexes is the naive bitmatrix approach better.
+ *  Experiment:
+ *  Naive BitVertex is better for : 11269
+ *  Min Heap is better for :         7478
+ *  Naive is better for :          170976
+ *  Conclusion
+ *  This approach works better for less than 5% of the vertexes.
+ *  What is the total saving in time by using all of these fancy methods
+ *  This experiment results where not repeatable as the cost of measuring time for one vertex
+ *  is more than the cost of computation.
+ *  5% are heavy hitters and could be much more important .
+ *  However isolating such vertexes was not successfull as time measurement had to much interference
+ *  from system calls.
+ *  */
+void hybrid_bit_vector_based(Graph *graph){
+    NODE * ndArray = graph->getNodeArray();
+    NODETYPE * edgeArray = graph->getEdgeArray();
+    init_metrics();
+    BitDictionary *bitDictionary = new BitDictionary();
+    reset_timer(TOTALNODEPROCESSTIME);
+    start_timer(TOTALNODEPROCESSTIME);
+    NODETYPE a[1000000];
+    NODETYPE b[1000000];
+    NODETYPE baseArray[maxArraySize];
+    double naive_timer;
+    int naive_v=0;
+    double min_heap_timer;
+    int min_heap_v = 0;
+    double naive_bit_timer;
+    int naive_bit_v = 0;
+    long res = 0;
+    double naive_total = 0;
+    double current_min = 0;
+    double min_total = 0;
+//    for(int i=502;i<503;i++) {
+    for(int i=0;i<graph->getNoVertexes();i++){
+        if (i % 100000 == 0) {
+//            cout << i << ":" << graph->getNoVertexes() << "\n";
+//            stop_timer(TOTALNODEPROCESSTIME);
+//            cout << "total base array time " << get_timer(TOTALNODEPROCESSTIME) <<"\n";
+//            reset_timer(TOTALNODEPROCESSTIME);
+//            start_timer(TOTALNODEPROCESSTIME);
+        }
+        NODE nd0 = ndArray[i];
+        if (nd0.size_plus == 0) continue;
+//      calculate required offsets
+        NODETYPE *arrays[nd0.size_plus];
+        NODETYPE arrsize[nd0.size_plus];
+        NODETYPE offsets[nd0.size_plus];
+        NODETYPE avgSize = 0;
+        for (int j = 0; j < nd0.size_plus; j++) {
+            NODE nd1 = ndArray[edgeArray[nd0.offset_plus + j]];
+            offsets[j] = binarySearchFirstElementGreaterTarget(&edgeArray[nd1.offset], 0, nd1.size, nd0.id);
+            arrays[j] = &edgeArray[nd1.offset + offsets[j]];
+            arrsize[j] = nd1.size - offsets[j];
+            avgSize += arrsize[j];
+        }
+        avgSize = avgSize / nd0.size_plus;
+//        cout << nd0.size_plus << ":" << avgSize <<"\n";
+
+        double s1 = std::clock();
+        NODETYPE *aNeighourArray = &edgeArray[nd0.offset_plus];
+        for (int j = 0; j < nd0.size_plus; j++) {
+            NODETYPE bNode = aNeighourArray[j];
+            NODE nd2 = ndArray[bNode];
+            NODETYPE *bNeighbourArray = &edgeArray[nd2.offset];
+//          Neighbours of nd2 && greater than nd1
+            unsigned int nd2_plus_offset = offsets[j];
+//            bNeighbourArray = &edgeArray[nd2.offset + nd2_plus_offset];
+            NODETYPE bSize = nd2.size - nd2_plus_offset;
+
+            for (int k = j + 1; k < nd0.size_plus; k++) {
+                NODETYPE cNode = aNeighourArray[k];
+                NODE nd3 = ndArray[cNode];
+                NODETYPE *cNeighbourArray = &edgeArray[nd3.offset];
+                //          Neighbours of nd3 && greater than nd1
+                unsigned int nd3_plus_offset = offsets[k];
+//                cNeighbourArray = &edgeArray[nd3.offset + nd3_plus_offset];
+                assert(nd3_plus_offset <= nd3.size);
+                NODETYPE cSize = nd3.size - nd3_plus_offset;
+
+//            s = s + naive_intersect
+//                    ( &cNeighbourArray[nd3_plus_offset], cSize,&bNeighbourArray[nd2_plus_offset], bSize);
+
+                res = res +
+                      hybrid_intersect(&cNeighbourArray[nd3_plus_offset], cSize, &bNeighbourArray[nd2_plus_offset],
+                                       bSize);
+            }
+//            s = s + hybrid_intersect(aNeighourArray, aSize, bNeighbourArray, bSize);
+        double s2 = std::clock();
+        naive_timer = s2-s1;
+        naive_total  =  naive_total + naive_timer/1000000;
+        }
+//      Time till here  < 1s
+
+        NODETYPE baseSize;
+        NODETYPE *base;
+
+//      Union all elements.
+        {
+            double s1 = std::clock();
+            baseSize = computeBaseArrayWithMinHeap(arrays, arrsize, nd0.size_plus, baseArray);
+            base = baseArray;
+            int charbitVectorsize = ((baseSize + 32) / 32 * 4);
+            unsigned char bitArray[charbitVectorsize * nd0.size_plus];
+            memset(bitArray, 0, sizeof(unsigned char) * charbitVectorsize * nd0.size_plus);
+
+            for (int j = 0; j < nd0.size_plus; j++) {
+                NODE cNode = ndArray[edgeArray[nd0.offset_plus + j]];
+                hybridBitMark_intersect(base, baseSize, &edgeArray[cNode.offset + offsets[j]],
+                                        cNode.size - offsets[j], &bitArray[charbitVectorsize * j]);
+            }
+            for (int j = 0; j < nd0.size_plus; j++) {
+                int aoffset = charbitVectorsize * j;
+                for (int k = j + 1; k < nd0.size_plus; k++) {
+                    int boffset = charbitVectorsize * k;
+                    for (int t = 0; t < charbitVectorsize; t++) {
+                        unsigned char x = bitArray[aoffset + t] & bitArray[boffset + t];
+                        res = res + bitDictionary->countSetBits(x);
+                    }
+                }
+            }
+
+            double s2 = std::clock();
+            min_heap_timer = s2 - s1;
+            if(min_heap_timer < naive_timer)current_min = min_heap_timer;
+        }
+        {
+            double s3 = std::clock();
+            baseSize = computeNaiveBaseArrayAndReturnSize(arrays, arrsize, nd0.size_plus, baseArray);
+            base = baseArray;
+            int charbitVectorsize = ((baseSize + 32) / 32 * 4);
+            unsigned char bitArray[charbitVectorsize * nd0.size_plus];
+            memset(bitArray, 0, sizeof(unsigned char) * charbitVectorsize * nd0.size_plus);
+
+            for (int j = 0; j < nd0.size_plus; j++) {
+                NODE cNode = ndArray[edgeArray[nd0.offset_plus + j]];
+                hybridBitMark_intersect(base, baseSize, &edgeArray[cNode.offset + offsets[j]],
+                                        cNode.size - offsets[j], &bitArray[charbitVectorsize * j]);
+//          if(cNode.size - offsets[j]<10)continue;
+//          hybrid_intersect(base,baseSize,&edgeArray[cNode.offset+offsets[j]],cNode.size - offsets[j]);
+            }
+                  for(int j=0;j<nd0.size_plus;j++){
+                      int aoffset = charbitVectorsize * j;
+                      unsigned int *ap = (unsigned int *)&bitArray[aoffset];
+                      for(int k=j+1;k<nd0.size_plus;k++){
+                          int boffset = charbitVectorsize * k;
+                          unsigned int *bp = (unsigned int *)&bitArray[boffset];
+                          for(int t=0;t<charbitVectorsize/4;t=t+1){
+                              res = res + _popcnt32(bp[t] & ap[t]);
+//                    unsigned char x = bitArray[aoffset + t] & bitArray[boffset + t];
+//                    res = res + bitDictionary->countSetBits(x);
+                          }
+                      }
+                  }
+            double s4 = std::clock();
+            naive_bit_timer= s4 - s3;
+            if(naive_bit_timer < current_min)current_min = naive_bit_timer;
+        }
+        if (( naive_bit_timer <  min_heap_timer) && (naive_bit_timer <  naive_timer)) {
+//            cout <<i <<  "Naive BIT timer " << nd0.size_plus << ":" << avgSize << ":" << naive_bit_timer <<":"<<
+//                        min_heap_timer <<":" << naive_timer << "\n";
+            naive_bit_v ++ ;
+        }
+        if (( min_heap_timer < naive_bit_timer) && ( min_heap_timer <  naive_timer)) {
+//            cout << i << "MIN HEAP timer " << nd0.size_plus << ":" << avgSize << "\n";
+            min_heap_v++;
+        }
+        if ((naive_timer < naive_bit_timer) && (naive_timer <  min_heap_timer)) {
+//            cout << i << "Naive timer " << nd0.size_plus << ":" << avgSize << ":" << naive_bit_timer <<":"<<
+//                                                                           min_heap_timer <<":" << naive_timer << "\n";
+            naive_v ++;
+        }
+//        cout << naive_total <<":"<< min_total<<"\n";
+    }
+    cout << "Naive bit v" << naive_bit_v << "\n";
+    cout << "Min Heap v" << min_heap_v << "\n";
+    cout << "Naive V" << naive_v << "\n";
+    cout << "total squares found:" << res << "\n";
+    stop_timer(TOTALNODEPROCESSTIME);
+    cout << "total base array time " << get_timer(TOTALNODEPROCESSTIME) <<"\n";
+
 }
