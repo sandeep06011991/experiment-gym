@@ -32,4 +32,6 @@ int bloomfilter_based_baseArray(NODETYPE **arrays, NODETYPE *arrsizes,NODETYPE n
 
 int usingTrivialSort(NODETYPE **arrays, NODETYPE *arrsizes,NODETYPE noArrays, NODETYPE * baseArray);
 
+int sortNeighbourhood(NODETYPE **arrays, NODETYPE *arrsizes,NODETYPE noArrays, NODETYPE * baseArray);
+
 #endif //V3_BITVECTORUTIL_H

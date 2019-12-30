@@ -421,8 +421,9 @@ void bit_vector_based(Graph *graph){
 //        if(nd0.size_plus < 10)continue;
 //        start_timer(BITMATRIXCONSTRUCTION);
 //        baseSize = computeNaiveBaseArrayWithDuplicates(arrays, arrsize, nd0.size_plus,baseArray);
-             baseSize = usingTrivialSort(arrays, arrsize, nd0.size_plus,baseArray);
-//            baseSize = computeNaiveBaseArrayAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
+//             baseSize = usingTrivialSort(arrays, arrsize, nd0.size_plus,baseArray);
+            baseSize =     sortNeighbourhood(arrays, arrsize, nd0.size_plus,baseArray);
+ //            baseSize = computeNaiveBaseArrayAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
 //            baseSize = bloomfilter_based_baseArray(arrays, arrsize, nd0.size_plus,baseArray);
 //            baseSize = computeBaseArrayWithMinHeap(arrays, arrsize, nd0.size_plus,baseArray);
 //            baseSize = computeBaseArrayAndBitMatrixReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
@@ -430,6 +431,7 @@ void bit_vector_based(Graph *graph){
 //            baseSize = computeBaseArrayUsingBinaryRecursion(arrays, arrsize, nd0.size_plus,baseArray);
 //              baseSize = computeNaiveBaseArraySkew(arrays, arrsize, nd0.size_plus,baseArray);
         base = baseArray;
+        continue;
 //      Compute of n Arrays, compute intersection with bit array.
 //      size in char but rounded to int to allow next loop
 //      Time till here is 7s

@@ -59,9 +59,9 @@ int main(int argc, char *argv[]) {
 //  Hypothesis one impact of skew
 //    naive_square_counting(graph);
 //    dual_bit_matrix_based(graph);
-//     bit_vector_based(graph);
+     bit_vector_based(graph);
 //test();
-        redundant_Intersection(graph);
+//        redundant_Intersection(graph);
 //    hybrid_bit_vector_based(graph);
 //    graph->countNodesWithPosEdgesGreater(100);
 //    graph->countNodesWithPosEdgesGreater(1000);

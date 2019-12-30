@@ -624,3 +624,21 @@ int usingTrivialSort(NODETYPE **arrays, NODETYPE *arrsizes,NODETYPE noArrays, NO
     return 0;
 
 }
+
+bool compare(HeapElement h1, HeapElement h2){
+    return h1.value  < h2.value ;
+}
+
+int sortNeighbourhood(NODETYPE **arrays, NODETYPE *arrsizes,NODETYPE noArrays, NODETYPE * baseArray){
+    int curr = 0;
+    for(int i=0;i < noArrays; i++){
+        HeapElement t;
+        t.arrayId = 0;
+        for(int j=0; j < arrsizes[i];j++){
+            t.value = arrays[i][j];
+            ha[curr] = t;
+            curr ++;
+        }
+    }
+//    std::sort(ha,ha+curr,compare);
+}
