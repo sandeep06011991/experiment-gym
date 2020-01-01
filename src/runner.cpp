@@ -6,6 +6,7 @@
 #include <timer.h>
 #include <branch_eval.h>
 #include <square_counting.h>
+#include <4clique.h>
 #include "graph.h"
 #include "experiments/naive_triangle_counting.h"
 #include "square_counting.cpp"
@@ -41,11 +42,10 @@ using namespace std;
 int main(int argc, char *argv[]) {
 
 //    cout << "No. of arguments recieved " << argc <<"\n";
-//    Graph * graph = new Graph("data/com-amazon.ungraph.txt.ro");
-    Graph * graph = new Graph("data/com-youtube.ungraph.txt.ro");
-
+//    Graph * graph = new G  NODETYPE raph("data/com-amazon.ungraph.txt.ro");
+//    Graph * graph = new Graph("data/com-youtube.ungraph.txt.ro");
 //    Graph * graph = new Graph("data/com-lj.ungraph.txt.ro");
-
+        Graph * graph = new Graph("data/data1.graph");
 //    graph->debugGraph();
 //  468774021
 //    4700600
@@ -59,7 +59,10 @@ int main(int argc, char *argv[]) {
 //  Hypothesis one impact of skew
 //    naive_square_counting(graph);
 //    dual_bit_matrix_based(graph);
-     bit_vector_based(graph);
+//     bit_vector_based(graph);
+
+//  naive4cliqueCounting(graph);
+  v1_4cliqueCounting(graph);
 //test();
 //        redundant_Intersection(graph);
 //    hybrid_bit_vector_based(graph);

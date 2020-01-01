@@ -231,3 +231,29 @@ int intersectTrie4Square(NODETYPE *nd2,NODETYPE nd2Size, NODETYPE *nd3, int nd3S
     }
     return s;
 }
+
+
+int intersectAndReturnCandidateSets(NODETYPE *nd1,NODETYPE nd1Size, NODETYPE *nd2, int nd2Size,
+                                    NODETYPE *returnbuffer){
+    int i=0;
+    int j=0;
+    int k=0;
+    while((i < nd1Size) && (j < nd2Size)){
+        if(nd1[i]==nd2[j]){
+            returnbuffer[k]=nd1[i] ;
+            i++;
+            j++;
+            k++;
+            continue;
+        }
+        if(nd1[i] < nd2[j]){
+            i++;
+            continue;
+        }
+        if(nd1[i] > nd2[j]){
+            j++;
+            continue;
+        }
+    }
+    return k;
+}

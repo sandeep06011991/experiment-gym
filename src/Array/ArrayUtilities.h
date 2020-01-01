@@ -8,6 +8,13 @@
 #define V2_ARRAYUTILITIES_H
 
 
+struct triple{
+    NODETYPE nd2;
+    NODETYPE nd3;
+    NODETYPE nd1;
+};
+
+
 int binary_search(NODETYPE* nd, int start, int end, NODETYPE target);
 
 int binarySearchFirstElementGreaterOrEqualTarget(NODETYPE *arr,int start, NODETYPE size, int target);

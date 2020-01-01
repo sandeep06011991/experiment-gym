@@ -17,11 +17,6 @@
  * Impact of sorting --> 13.37
  *
  * */
-struct triple{
-    NODETYPE nd2;
-    NODETYPE nd3;
-    NODETYPE nd1;
-};
 
 struct trie{
     NODETYPE nd2;
