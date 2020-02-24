@@ -71,6 +71,7 @@ void MinHeap::addElement(NODETYPE nd, int arrayId){
     array[currentSize].value = nd;
     int i = currentSize;
 //    check for space
+//    std::cout << currentSize << " "  << maxSize <<"\n";
     assert(currentSize < maxSize  );
     currentSize ++;
     while(i > 0) {

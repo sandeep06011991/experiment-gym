@@ -25,3 +25,7 @@ void BitDictionary::visualize(){
         std::cout << i << " " << dic[i] << "\n";
     }
 }
+
+inline int countSetBitsInline(int *dic, unsigned char t){
+    return dic[(int)t];
+}

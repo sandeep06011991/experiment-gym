@@ -33,4 +33,10 @@ int intersectTrie4Square(NODETYPE *nd2,NODETYPE nd2Size, NODETYPE *nd3, int nd3S
 
 int intersectAndReturnCandidateSets(NODETYPE *nd1,NODETYPE nd1Size, NODETYPE *nd2, int nd2Size,
                                     NODETYPE *returnbuffer);
+
+int intersectAndReturnCandidateIds(NODETYPE *nd1,NODETYPE nd1Size, NODETYPE *nd2, int nd2Size,
+                                   NODETYPE *returnbufferCandidates, NODETYPE *returnbufferIds);
+
+int intersectAndMarkBits(NODETYPE *nd1,NODETYPE nd1Size, NODETYPE *nd2, int nd2Size,
+                         unsigned char *bitVector, NODETYPE* buffer);
 #endif //V3_INTERSECTION_H

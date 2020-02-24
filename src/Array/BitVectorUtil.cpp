@@ -640,5 +640,5 @@ int sortNeighbourhood(NODETYPE **arrays, NODETYPE *arrsizes,NODETYPE noArrays, N
             curr ++;
         }
     }
-//    std::sort(ha,ha+curr,compare);
+    std::sort(ha,ha+curr,compare);
 }

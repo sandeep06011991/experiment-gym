@@ -42,16 +42,19 @@ using namespace std;
 int main(int argc, char *argv[]) {
 
 //    cout << "No. of arguments recieved " << argc <<"\n";
-//    Graph * graph = new G  NODETYPE raph("data/com-amazon.ungraph.txt.ro");
-//    Graph * graph = new Graph("data/com-youtube.ungraph.txt.ro");
+//    Graph * graph = new Graph("data/com-amazon.ungraph.txt.ro");
+    Graph * graph = new Graph("data/com-youtube.ungraph.txt.ro");
 //    Graph * graph = new Graph("data/com-lj.ungraph.txt.ro");
-        Graph * graph = new Graph("data/data1.graph");
+//        Graph *    graph = new Graph("data/data1.graph");
 //    graph->debugGraph();
 //  468774021
 //    4700600
 //   35877389
+    triangle_counting(graph);
 
 //    generateGraphNothingCommon(1000,1000,"data/data1.graph");
+
+//    tiled_triangle_counting(graph);
 //    Graph * graph = new Graph("data/data1.graph");
 //    std::cout << "Total no nodes :" << graph->getNoVertexes() <<"\n";
 //    generateGraphSkewNothingCommon(100,10,10,1000,"data/data1.graph");
@@ -60,9 +63,11 @@ int main(int argc, char *argv[]) {
 //    naive_square_counting(graph);
 //    dual_bit_matrix_based(graph);
 //     bit_vector_based(graph);
-
+//        traversal_based_sort(graph);
 //  naive4cliqueCounting(graph);
-  v1_4cliqueCounting(graph);
+//  v3cliqueCounting(graph);
+//graph->debugGraph();
+//  v1_4cliqueCounting(graph);
 //test();
 //        redundant_Intersection(graph);
 //    hybrid_bit_vector_based(graph);

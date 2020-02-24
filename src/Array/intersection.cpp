@@ -257,3 +257,64 @@ int intersectAndReturnCandidateSets(NODETYPE *nd1,NODETYPE nd1Size, NODETYPE *nd
     }
     return k;
 }
+
+/* return buffer now contains ids indexed by nd1 */
+int intersectAndReturnCandidateIds(NODETYPE *nd1,NODETYPE nd1Size, NODETYPE *nd2, int nd2Size,
+                                    NODETYPE *returnbufferCandidates, NODETYPE *returnbufferIds){
+    int i=0;
+    int j=0;
+    int k=0;
+    while((i < nd1Size) && (j < nd2Size)){
+        if(nd1[i]==nd2[j]){
+            returnbufferCandidates[k] = nd1[i];
+            returnbufferIds[k]=i ;
+            i++;
+            j++;
+            k++;
+            continue;
+        }
+        if(nd1[i] < nd2[j]){
+            i++;
+            continue;
+        }
+        if(nd1[i] > nd2[j]){
+            j++;
+            continue;
+        }
+    }
+    return k;
+}
+
+inline void markBit(unsigned char *bitVector, int bitID){
+    int position = bitID / 8;
+    int offset = 7 - (bitID%8);
+    bitVector[position] = bitVector[position] | 1U << offset;
+}
+
+int intersectAndMarkBits(NODETYPE *nd1,NODETYPE nd1Size, NODETYPE *nd2, int nd2Size,
+                         unsigned char *bitVector, NODETYPE * results){
+    int i=0;
+    int j=0;
+    int k=0;
+    memset(bitVector,0,nd1Size);
+    memset(results,0,nd1Size);
+    while((i < nd1Size) && (j < nd2Size)){
+        if(nd1[i]==nd2[j]){
+            markBit(bitVector, i);
+            results[k] = i;
+            i++;
+            j++;
+            k++;
+            continue;
+        }
+        if(nd1[i] < nd2[j]){
+            i++;
+            continue;
+        }
+        if(nd1[i] > nd2[j]){
+            j++;
+            continue;
+        }
+    }
+    return k;
+}

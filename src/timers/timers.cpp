@@ -57,25 +57,27 @@ void print_statistics(){
         switch(i){
             case TIMERS::TOTALNODEPROCESSTIME:cout << "Total Node Process time";
                 break;
-            case TIMERS::BITMATRIXCONSTRUCTION:cout << "=== BitMatrix Construct";
+            case TIMERS::BITMATRIXCONSTRUCTION:cout << "===Tile construction";
                 break;
-            case TIMERS::REDMATRIXCONSTRUCTION:cout << "====== Red Matrix Construct";
+            case TIMERS::ADGLISTINTERSECTION:cout << "===Tile Processing";
                 break;
-            case TIMERS::BLACKMATRIXCONSTRUCTION:cout << "====== Black Matrix Construct";
-                break;
-            case TIMERS::BASECONSTRUCTION: cout << "========= Base Construction"; break;
-            case TIMERS::BINARYSEARCH: cout << "=========== Binary search";break;
-            case TIMERS::ADGLISTINTERSECTION:cout << "========= Adj List Intersection";
-                break;
-            case TIMERS::SIMDINTERSECTION:cout << "========= SIMDINTERSECTION";
-                break;
-            case TIMERS::INTEGRATEDCONSTRUCTION:cout << "======= Integrated timers";break;
-            case TIMERS::BITSIMDINTERSECTIONTIME:cout << "=== BitSIMDIntersectionTime";
-                break;
-            case TIMERS::BITCHARINTERSECTIONTIME:cout << "=== BitCharIntersectionTime";
-                break;
-            case TIMERS::HIGHSKEW:cout << "highskew";break;
-            case TIMERS::LOWSKEW:cout << "lowskew";break;
+//            case TIMERS::REDMATRIXCONSTRUCTION:cout << "====== Red Matrix Construct";
+//                break;
+//            case TIMERS::BLACKMATRIXCONSTRUCTION:cout << "====== Black Matrix Construct";
+//                break;
+//            case TIMERS::BASECONSTRUCTION: cout << "========= Base Construction"; break;
+//            case TIMERS::BINARYSEARCH: cout << "=========== Binary search";break;
+//            case TIMERS::ADGLISTINTERSECTION:cout << "========= Adj List Intersection";
+//                break;
+//            case TIMERS::SIMDINTERSECTION:cout << "========= SIMDINTERSECTION";
+//                break;
+//            case TIMERS::INTEGRATEDCONSTRUCTION:cout << "======= Integrated timers";break;
+//            case TIMERS::BITSIMDINTERSECTIONTIME:cout << "=== BitSIMDIntersectionTime";
+//                break;
+//            case TIMERS::BITCHARINTERSECTIONTIME:cout << "=== BitCharIntersectionTime";
+//                break;
+//            case TIMERS::HIGHSKEW:cout << "highskew";break;
+//            case TIMERS::LOWSKEW:cout << "lowskew";break;
 
 
         }

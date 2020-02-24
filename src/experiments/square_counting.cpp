@@ -422,10 +422,10 @@ void bit_vector_based(Graph *graph){
 //        start_timer(BITMATRIXCONSTRUCTION);
 //        baseSize = computeNaiveBaseArrayWithDuplicates(arrays, arrsize, nd0.size_plus,baseArray);
 //             baseSize = usingTrivialSort(arrays, arrsize, nd0.size_plus,baseArray);
-            baseSize =     sortNeighbourhood(arrays, arrsize, nd0.size_plus,baseArray);
- //            baseSize = computeNaiveBaseArrayAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
+//            baseSize =     sortNeighbourhood(arrays, arrsize, nd0.size_plus,baseArray);
+//             baseSize = computeNaiveBaseArrayAndReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
 //            baseSize = bloomfilter_based_baseArray(arrays, arrsize, nd0.size_plus,baseArray);
-//            baseSize = computeBaseArrayWithMinHeap(arrays, arrsize, nd0.size_plus,baseArray);
+            baseSize = computeBaseArrayWithMinHeap(arrays, arrsize, nd0.size_plus,baseArray);
 //            baseSize = computeBaseArrayAndBitMatrixReturnSize(arrays, arrsize, nd0.size_plus,baseArray);
 //            baseSize = computeNaiveBaseArrayAndReturnSize(arraysLarge,arrsizeLarge,t,baseArray);
 //            baseSize = computeBaseArrayUsingBinaryRecursion(arrays, arrsize, nd0.size_plus,baseArray);
@@ -966,4 +966,38 @@ void hybrid_bit_vector_based(Graph *graph){
     stop_timer(TOTALNODEPROCESSTIME);
     cout << "total base array time " << get_timer(TOTALNODEPROCESSTIME) <<"\n";
 
+}
+
+
+/* A case for online indexing.
+ * GRO index does not take into account the pattern being explored
+ * Useful for indexing on graph databases. */
+void traversal_based_sort(Graph *graph){
+//      Time to compute two hop neighbourhood
+        NODETYPE neighbourhood[graph->getNoVertexes()];
+        memset(neighbourhood,0,graph->getNoVertexes());
+        NODE* ndArray = graph->getNodeArray();
+        NODETYPE* edgeArray = graph->getEdgeArray();
+        int a =0;
+        for(int i=0;i<graph->getNoVertexes();i++){
+            NODE nd1 = ndArray[i];
+//            NODETYPE bitMatrix[graph->getNoVertexes() * nd1.size_plus];
+
+
+
+            cout << graph->getNoVertexes() * nd1.size_plus << " ";
+//            for(int j=0;j<nd1.size_plus;j++){
+//                NODE nd2 = ndArray[edgeArray[nd1.offset_plus+j]];
+//                for(int k=0;k<nd2.size_plus;k++) {
+//                    a =  edgeArray[nd2.offset_plus + k] ;
+//                    cout << nd1.size_plus << " ";
+//                    assert(a*j < graph->getNoVertexes() * nd1.size_plus);
+                    //                    if (edgeArray[nd2.offset_plus + k] < graph->getNoVertexes()){
+//                    assert(j<nd1.size_plus);
+//                    bitMatrix[j * graph->getNoVertexes()] = 1;
+//                    }
+//                }
+//            }
+        }
+//        cout << a <<"\n";
 }

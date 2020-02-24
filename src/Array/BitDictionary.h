@@ -8,8 +8,10 @@
 // Allows to read properties of 0-256 bit of information
 class BitDictionary {
 
-    int dic[256];
+
 public:
+    int dic[256];
+
     BitDictionary();
 
     int countSetBits(unsigned char t);
@@ -18,5 +20,6 @@ public:
 
 };
 
+inline int countSetBitsInline(int *dic, unsigned char t);
 
 #endif //V3_BITDICTIONARY_H
