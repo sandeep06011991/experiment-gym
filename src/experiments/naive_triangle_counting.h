@@ -6,6 +6,7 @@
 #include <iostream>
 #include <intersection.h>
 #include <MinHeap.h>
+#include <vector>
 #include "timer.h"
 #include "Tile.h"
 
@@ -67,8 +68,8 @@ int triangle_counting(Graph *graph){
     int skip =0;
     int total = 0;
     start_timer(TOTALNODEPROCESSTIME);
-    for(int i=0;i<graph->getNoVertexes();i++){
-//    for(int i=0;i<100000;i++){
+//    for(int i=0;i<graph->getNoVertexes();i++){
+    for(int i=0;i<1000;i++){
         NODE nd1 = ndArray[i];
         NODETYPE* aNeighourArray = &edgeArray[nd1.offset_plus];
         NODETYPE aSize = nd1.size_plus;
@@ -78,18 +79,19 @@ int triangle_counting(Graph *graph){
             NODE nd2 =  ndArray[bNode];
             NODETYPE* bNeighbourArray = &edgeArray[nd2.offset_plus];
             NODETYPE bSize = nd2.size_plus;
-            if(nd1.size_plus + nd2.size_plus >=100){
+//            if(nd1.size_plus + nd2.size_plus >=0){
                 s =s  + naive_intersect(&edgeArray[nd1.offset_plus], nd1.size_plus, &edgeArray[nd2.offset_plus], nd2.size_plus);
 //                continue;
 //              TODO: Add a naive executor for the thread.
-            }
+//            }
 //            s = s + naive_intersect(aNeighourArray, aSize, bNeighbourArray, bSize);
 //            s = s + hybrid_intersect(aNeighourArray, aSize, bNeighbourArray, bSize);
         }
     }
 
     stop_timer(TOTALNODEPROCESSTIME);
-    print_statistics();
+//    print_statistics();
+    cout << "Total time taken" << get_timer(TOTALNODEPROCESSTIME) <<"\n";
     cout << "Fraction of nodes skipped:" << skip *1.0 / total  << "\n";
     cout << "triangles found:" <<  s << "\n";
     return s;
@@ -410,4 +412,86 @@ int tiled_triangle_counting(Graph *graph){
     cout << "total triangels found" << s <<"\n";
 }
 
+struct extend_tuple{
+    NODETYPE extend;
+    NODETYPE filter;
+};
+
+struct filter_tuple{
+    NODETYPE extend;
+    NODETYPE filter;
+    NODETYPE extension;
+};
+const int CHUNKSIZE = 1000;
+
+/* Naive Implementation: .07
+ * No optimizations    : .25
+ * */
+int extend_intersect_version(Graph *graph){
+    reset_timer(TOTALNODEPROCESSTIME);
+    start_timer(TOTALNODEPROCESSTIME);
+    int totalNoChunks = graph->getNoVertexes()/CHUNKSIZE + 1;
+    cout << totalNoChunks <<"\n";
+    vector<extend_tuple> * toextend[totalNoChunks];
+    vector<filter_tuple> * toFilter[totalNoChunks];
+    for(int i=0;i<totalNoChunks;i++){
+        toextend[i] = new vector<extend_tuple>();
+        toFilter[i] = new vector<filter_tuple>();
+    }
+    NODE * ndArray = graph->getNodeArray();
+    NODETYPE * edgeArray = graph->getEdgeArray();
+    for(int i=0;i<graph->getNoVertexes();i++){
+//    for(int i=0;i<1000;i++){
+        NODE nd1 = ndArray[i];
+        for(int j=0;j<nd1.size_plus;j++){
+            NODE nd2 = ndArray[edgeArray[nd1.offset_plus + j]];
+            struct extend_tuple ef;
+            if(nd1.size_plus < nd2.size_plus){
+                ef.extend= nd1.id;
+                ef.filter = nd2.id ;
+                toextend[nd1.id/CHUNKSIZE]->push_back(ef);
+            }else{
+                ef.extend= nd2.id;
+                ef.filter = nd1.id ;
+                toextend[nd2.id/CHUNKSIZE]->push_back(ef);
+            }
+        }
+    }
+    for(int i=0;i<totalNoChunks;i++){
+        vector<extend_tuple> * extend =toextend[i];
+        for(auto t=extend->begin(); t!=extend->end(); ++t){
+            extend_tuple ef = *t;
+            NODE nd = ndArray[ef.extend];
+            for(int j=0;j<nd.size_plus;j++){
+                filter_tuple f;
+                f.extend = ef.extend;
+                f.filter = ef.filter;
+                f.extension = edgeArray[nd.offset_plus + j];
+                if(f.extension == f.filter)continue;
+                toFilter[f.extension/CHUNKSIZE]->push_back(f);
+            }
+        }
+        extend->clear();
+    }
+    int s = 0;
+    for(int i=0;i<totalNoChunks;i++){
+        vector<filter_tuple> * filter = toFilter[i];
+//        sort(filter->begin(),filter->end(),[&](filter_tuple a, filter_tuple b){
+//           if(a.filter == b.filter)return a.extension < b.extension;
+//            return a.filter <b.filter;
+//        });
+
+        for(auto ff=filter->begin();ff!=filter->end(); ++ff){
+            filter_tuple f = *ff;
+            NODE nd = ndArray[f.filter];
+            for(int j = 0; j < nd.size_plus;j++){
+                if(edgeArray[nd.offset_plus+j] ==f.extension){s ++; break;}
+            }
+        }
+    }
+    stop_timer(TOTALNODEPROCESSTIME);
+    cout << "total processing time" << get_timer(TOTALNODEPROCESSTIME) << "\n";
+    cout << "total triangles " << s <<"\n";
+
+}
 #endif //V3_NAIVE_TRIANGLE_COUNTING_H
