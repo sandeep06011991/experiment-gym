@@ -442,9 +442,12 @@ int extend_intersect_version(Graph *graph){
 //    cout << "Edges SPLIT OVER Pages" << graph->getNoEdges()/10000 <<"\n";
     cout << "CHUNK SIZE "<< CHUNKSIZE <<"\n";
 //    cout <<"Total no chunks" << totalNoChunks <<"\n";
-    vector<extend_tuple> * toextend[totalNoChunks];
-    vector<filter_tuple> * toFilter[totalNoChunks];
-    vector<NODETYPE> *extensions[totalNoChunks];
+     filter_tuple * toFilter[totalNoChunks];
+     NODETYPE toFilterSizes[totalNoChunks];
+     NODETYPE *extensions[totalNoChunks];
+     NODETYPE extSizes[totalNoChunks];
+     const int MAX_FILTER_SIZES = 100000;
+     const int MAX_EXT_SIZES = 100000;
 //  Print chunk statistics
     NODETYPE chunkCapacity[totalNoChunks];
     NODE * ndArray = graph->getNodeArray();
@@ -460,8 +463,10 @@ int extend_intersect_version(Graph *graph){
 //        cout << chunkCapacity[i] <<" ";
 //    }
     for(int i=0;i<totalNoChunks;i++){
-        toFilter[i] = new vector<filter_tuple>(1000);
-        extensions[i] = new vector<NODETYPE>(100000);
+        toFilter[i] =  (filter_tuple *)malloc(sizeof(filter_tuple) * MAX_FILTER_SIZES);
+        toFilterSizes[i] = 0;
+        extensions[i] = (NODETYPE *)malloc(sizeof(NODETYPE) * MAX_EXT_SIZES);
+        extSizes[i] = 0;
     }
 
     NODETYPE * edgeArray = graph->getEdgeArray();
@@ -476,38 +481,43 @@ int extend_intersect_version(Graph *graph){
         NODE nd1 = ndArray[i];
 //            if(nd1.size_plus > 6)continue;
             for(int j=0;j < nd1.size_plus;j++){
-            NODE nd2 = ndArray[edgeArray[nd1.offset_plus + j]];
+            NODETYPE nd2ID = edgeArray[nd1.offset_plus + j];
             struct filter_tuple f;
             f.extend = nd1.id;
-            f.filter = nd2.id;
+            f.filter = nd2ID;
             int chunkID = f.filter/CHUNKSIZE;
-            f.extension_offset = extensions[chunkID]->size();
+            f.extension_offset = extSizes[chunkID];
             f.extension_size = nd1.size_plus - (j+1);
             for(int k=j+1;k<nd1.size_plus;k++){
-                NODE nd3 = ndArray[edgeArray[nd1.offset_plus + k]];
+                NODETYPE nd3ID = edgeArray[nd1.offset_plus + k];
 //                arr[insert] = nd3.id;
-                extensions[chunkID]->push_back(nd3.id);
-                insert ++;
+                assert(extSizes[chunkID] < MAX_EXT_SIZES);
+                extensions[chunkID][extSizes[chunkID]] = nd3ID;
+                extSizes[chunkID] ++ ;
             }
-            if(f.extension_size !=0)toFilter[chunkID]->push_back(f);
+            if(f.extension_size !=0){
+             assert(toFilterSizes[chunkID] < MAX_FILTER_SIZES);
+             toFilter[chunkID][toFilterSizes[chunkID]] = f;
+             toFilterSizes[chunkID] ++;
+            }
         }
     }
     stop_timer(EXTEND);
-    cout << "data written" << insert <<"\n";
+    cout << "Amount of DATA written" << insert <<"\n";
     cout << "Extend part" << get_timer(EXTEND) <<"\n";
 
     int s = 0;
     start_timer(INTERSECT);
     for(int i=0;i<totalNoChunks;i++){
-        vector<filter_tuple> * filter = toFilter[i];
-        NODETYPE * extensionlist = extensions[i]->data();
+        filter_tuple * filter = toFilter[i];
+        NODETYPE * extensionlist = extensions[i];
 //        sort(filter->begin(),filter->end(),[&](filter_tuple a, filter_tuple b){
 //           if(a.filter == b.filter)return a.extension < b.extension;
 //            return a.filter <b.filter;
 //        });
 
-        for(auto ff=filter->begin();ff!=filter->end(); ++ff){
-            filter_tuple f = *ff;
+        for(int l=0; l < toFilterSizes[i];l++){
+            filter_tuple f = filter[l];
             NODE nd = ndArray[f.filter];
             int j=0; int k=0;
             NODETYPE* ndEdgeArray = &edgeArray[nd.offset_plus];
