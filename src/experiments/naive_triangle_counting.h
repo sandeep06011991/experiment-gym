@@ -68,12 +68,13 @@ int triangle_counting(Graph *graph){
     int skip =0;
     int total = 0;
     start_timer(TOTALNODEPROCESSTIME);
-//    for(int i=0;i<graph->getNoVertexes();i++){
-    for(int i=0;i<1000;i++){
+    for(int i=0;i<graph->getNoVertexes();i++){
+//    for(int i=0;i<1000;i++){
         NODE nd1 = ndArray[i];
         NODETYPE* aNeighourArray = &edgeArray[nd1.offset_plus];
         NODETYPE aSize = nd1.size_plus;
 //        cout << i <<"\n";
+//        if(aSize >10)continue;
         for(int j=0;j<nd1.size_plus;j++){
             NODETYPE bNode = aNeighourArray[j];
             NODE nd2 =  ndArray[bNode];
@@ -420,62 +421,86 @@ struct extend_tuple{
 struct filter_tuple{
     NODETYPE extend;
     NODETYPE filter;
-    NODETYPE extension;
+    NODETYPE extension_offset;
+    NODETYPE extension_size;
 };
 const int CHUNKSIZE = 1000;
 
-/* Naive Implementation: .07
+/* V1 AMAZON IMPLEMENTATION:
+ * Naive Implementation: .07
  * No optimizations    : .25
+ * 1 Phase extend and delete: .09
+ * 2 Phase movement of intersection: .13
+ *
  * */
 int extend_intersect_version(Graph *graph){
-    reset_timer(TOTALNODEPROCESSTIME);
-    start_timer(TOTALNODEPROCESSTIME);
+
     int totalNoChunks = graph->getNoVertexes()/CHUNKSIZE + 1;
-    cout << totalNoChunks <<"\n";
+//    cout << "Graphs Details:\n" ;
+//    cout << "Vertex:" << graph->getNoVertexes() <<"\n";
+//    cout << "Edges:" << graph->getNoEdges() <<"\n";
+//    cout << "Edges SPLIT OVER Pages" << graph->getNoEdges()/10000 <<"\n";
+    cout << "CHUNK SIZE "<< CHUNKSIZE <<"\n";
+//    cout <<"Total no chunks" << totalNoChunks <<"\n";
     vector<extend_tuple> * toextend[totalNoChunks];
     vector<filter_tuple> * toFilter[totalNoChunks];
-    for(int i=0;i<totalNoChunks;i++){
-        toextend[i] = new vector<extend_tuple>();
-        toFilter[i] = new vector<filter_tuple>();
-    }
+    vector<NODETYPE> *extensions[totalNoChunks];
+//  Print chunk statistics
+    NODETYPE chunkCapacity[totalNoChunks];
     NODE * ndArray = graph->getNodeArray();
-    NODETYPE * edgeArray = graph->getEdgeArray();
-    for(int i=0;i<graph->getNoVertexes();i++){
-//    for(int i=0;i<1000;i++){
-        NODE nd1 = ndArray[i];
-        for(int j=0;j<nd1.size_plus;j++){
-            NODE nd2 = ndArray[edgeArray[nd1.offset_plus + j]];
-            struct extend_tuple ef;
-            if(nd1.size_plus < nd2.size_plus){
-                ef.extend= nd1.id;
-                ef.filter = nd2.id ;
-                toextend[nd1.id/CHUNKSIZE]->push_back(ef);
-            }else{
-                ef.extend= nd2.id;
-                ef.filter = nd1.id ;
-                toextend[nd2.id/CHUNKSIZE]->push_back(ef);
-            }
-        }
-    }
+//    for(int i=0;i<totalNoChunks;i++){
+//        chunkCapacity[i] = 0;
+//    }
+//    for(int i=0;i<graph->getNoVertexes();i++){
+//        int chunkId = ndArray[i].id/CHUNKSIZE;
+//        chunkCapacity[chunkId] = chunkCapacity[chunkId] + ndArray[i].size_plus;
+//    }
+//    cout << "chunk capacity\n";
+//    for(int i=0;i<totalNoChunks;i++){
+//        cout << chunkCapacity[i] <<" ";
+//    }
     for(int i=0;i<totalNoChunks;i++){
-        vector<extend_tuple> * extend =toextend[i];
-        for(auto t=extend->begin(); t!=extend->end(); ++t){
-            extend_tuple ef = *t;
-            NODE nd = ndArray[ef.extend];
-            for(int j=0;j<nd.size_plus;j++){
-                filter_tuple f;
-                f.extend = ef.extend;
-                f.filter = ef.filter;
-                f.extension = edgeArray[nd.offset_plus + j];
-                if(f.extension == f.filter)continue;
-                toFilter[f.extension/CHUNKSIZE]->push_back(f);
-            }
-        }
-        extend->clear();
+        toFilter[i] = new vector<filter_tuple>(1000);
+        extensions[i] = new vector<NODETYPE>(100000);
     }
+
+    NODETYPE * edgeArray = graph->getEdgeArray();
+
+    reset_timer(TOTALNODEPROCESSTIME);
+    start_timer(TOTALNODEPROCESSTIME);
+    start_timer(EXTEND);
+    int insert = 0;
+//    int *arr = (int *)malloc(1000*1000*3);
+        for(int i=0;i<graph->getNoVertexes();i++){
+//    for(int i=0;i<1000000;i++){
+        NODE nd1 = ndArray[i];
+//            if(nd1.size_plus > 6)continue;
+            for(int j=0;j < nd1.size_plus;j++){
+            NODE nd2 = ndArray[edgeArray[nd1.offset_plus + j]];
+            struct filter_tuple f;
+            f.extend = nd1.id;
+            f.filter = nd2.id;
+            int chunkID = f.filter/CHUNKSIZE;
+            f.extension_offset = extensions[chunkID]->size();
+            f.extension_size = nd1.size_plus - (j+1);
+            for(int k=j+1;k<nd1.size_plus;k++){
+                NODE nd3 = ndArray[edgeArray[nd1.offset_plus + k]];
+//                arr[insert] = nd3.id;
+                extensions[chunkID]->push_back(nd3.id);
+                insert ++;
+            }
+            if(f.extension_size !=0)toFilter[chunkID]->push_back(f);
+        }
+    }
+    stop_timer(EXTEND);
+    cout << "data written" << insert <<"\n";
+    cout << "Extend part" << get_timer(EXTEND) <<"\n";
+
     int s = 0;
+    start_timer(INTERSECT);
     for(int i=0;i<totalNoChunks;i++){
         vector<filter_tuple> * filter = toFilter[i];
+        NODETYPE * extensionlist = extensions[i]->data();
 //        sort(filter->begin(),filter->end(),[&](filter_tuple a, filter_tuple b){
 //           if(a.filter == b.filter)return a.extension < b.extension;
 //            return a.filter <b.filter;
@@ -484,11 +509,31 @@ int extend_intersect_version(Graph *graph){
         for(auto ff=filter->begin();ff!=filter->end(); ++ff){
             filter_tuple f = *ff;
             NODE nd = ndArray[f.filter];
-            for(int j = 0; j < nd.size_plus;j++){
-                if(edgeArray[nd.offset_plus+j] ==f.extension){s ++; break;}
+            int j=0; int k=0;
+            NODETYPE* ndEdgeArray = &edgeArray[nd.offset_plus];
+            NODETYPE* extenArray = &extensionlist[f.extension_offset];
+            while((j<nd.size_plus) && (k < f.extension_size)){
+                if(ndEdgeArray[j] == extenArray[k]){
+                    s++;
+                    j++;
+                    k++;
+                    continue;
+                }
+                if(ndEdgeArray[j] < extenArray[k]){
+                    j++;
+                    continue;
+                }
+                if(ndEdgeArray[j] > extenArray[k]){
+                    k++;
+                    continue;
+                }
+
             }
+
         }
     }
+    stop_timer(INTERSECT);
+    cout << "intersection time" <<get_timer(INTERSECT)<<"\n";
     stop_timer(TOTALNODEPROCESSTIME);
     cout << "total processing time" << get_timer(TOTALNODEPROCESSTIME) << "\n";
     cout << "total triangles " << s <<"\n";

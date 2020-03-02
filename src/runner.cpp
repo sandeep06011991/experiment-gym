@@ -12,6 +12,8 @@
 #include "square_counting.cpp"
 #include "experiments/array_exp.h"
 #include "operators.h"
+#include "memory_experiments.h"
+
 using namespace std;
 
 //
@@ -57,7 +59,8 @@ int main(int argc, char *argv[]) {
 //    4700600
 //   35877389
 //    triangle_counting(graph);
-
+//    test_cost_of_read_and_write();
+//    test_cost_of_page_faulting();
     extend_intersect_version(graph);
 //    generateGraphNothingCommon(1000,1000,"data/data1.graph");
 

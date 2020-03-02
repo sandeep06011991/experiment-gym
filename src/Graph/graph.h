@@ -30,6 +30,8 @@ public:
 
     int getNoVertexes();
 
+    int getNoEdges(){return no_edges;}
+
     NODE* getNode(NODETYPE nodeID);
 
     void calculatePlusNeighbourHood();

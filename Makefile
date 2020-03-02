@@ -6,6 +6,6 @@ all:
 	cd build;./runner
 #	cd build;gdbserver :4444 ./runner
 #	cd build; sudo perf stat ./runner
-#	cd build; sudo perf stat -e page-faults,cache-misses,cache-references,branches,branch-misses,instructions ./runner
+#	cd build; sudo perf stat -e L1-dcache-load-misses,LLC-load-misses,dTLB-load-misses,page-faults,cache-misses,cache-references,branches,branch-misses,instructions ./runner
 #	cd build; sudo perf stat -e cache-misses,cache-references,branches,branch-misses,instructions ./runner
 #	cd build;./test_driver
