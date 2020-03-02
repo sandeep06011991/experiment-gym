@@ -49,8 +49,8 @@ void test(){
 int main(int argc, char *argv[]) {
 
 //    cout << "No. of arguments recieved " << argc <<"\n";
-    Graph * graph = new Graph("data/com-amazon.ungraph.txt.ro");
-//    Graph * graph = new Graph("data/com-youtube.ungraph.txt.ro");
+//    Graph * graph = new Graph("data/com-amazon.ungraph.txt.ro");
+    Graph * graph = new Graph("data/com-youtube.ungraph.txt.ro");
 //    Graph * graph = new Graph("data/com-lj.ungraph.txt.ro");
 //        Graph *    graph = new Graph("data/data1.graph");
 //    Graph *graph  = new Graph("data/com-orkut.ungraph.txt.ro");
@@ -58,10 +58,10 @@ int main(int argc, char *argv[]) {
 //  468774021
 //    4700600
 //   35877389
-//    triangle_counting(graph);
+    triangle_counting(graph);
 //    test_cost_of_read_and_write();
 //    test_cost_of_page_faulting();
-    extend_intersect_version(graph);
+//    extend_intersect_version(graph);
 //    generateGraphNothingCommon(1000,1000,"data/data1.graph");
 
 //    tiled_triangle_counting(graph);
