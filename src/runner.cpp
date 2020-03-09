@@ -8,6 +8,8 @@
 #include <square_counting.h>
 #include <4clique.h>
 #include <charecteristics.h>
+#include <GHDNode.h>
+#include <Pipeline.h>
 #include "graph.h"
 #include "experiments/naive_triangle_counting.h"
 #include "square_counting.cpp"
@@ -45,13 +47,23 @@ using namespace std;
 void test(){
 
 }
-/* Main entry point */
-int main(int argc, char *argv[]) {
+
+/* New entry point. */
+int main(int argc, char *argv[]){
+    Graph *    graph = new Graph("data/data1.graph");
+//    Graph *graph = new Graph("data/com-amazon.ungraph.txt.ro");
+    GHDNode * node = getEdgeGHDNode();
+    Pipeline * pipeline = new Pipeline(graph, node);
+    pipeline->run();
+}
+
+/* Old entry point */
+int main1(int argc, char *argv[]) {
 
 //    cout << "No. of arguments recieved " << argc <<"\n";
-//    Graph * graph = new Graph("data/com-amazon.ungraph.txt.ro");
+    Graph * graph = new Graph("data/com-amazon.ungraph.txt.ro");
 //    Graph * graph = new Graph("data/com-youtube.ungraph.txt.ro");
-    Graph * graph = new Graph("data/com-lj.ungraph.txt.ro");
+//    Graph * graph = new Graph("data/com-lj.ungraph.txt.ro");
 //        Graph *    graph = new Graph("data/data1.graph");
 //    Graph *graph  = new Graph("data/com-orkut.ungraph.txt.ro");
 //    graph->debugGraph();

@@ -3,7 +3,7 @@ all:
 	cd build;cmake3 ..;make install
 #	cd build;./preprocessor youtube
 #	cd build;./runner
-	cd build;./runner
+#	cd build;./runner
 #	cd build;gdbserver :4444 ./runner
 #	cd build; sudo perf stat ./runner
 #	cd build; valgrind --tool=cachegrind ./runner
