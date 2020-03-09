@@ -12,6 +12,7 @@ add_library(moduleLib STATIC ${graphSRC} ${utilitySRC} timers/timers.cpp)
 add_executable(runner runner.cpp experiments/redundant.cpp)
 target_link_libraries(runner moduleLib)
 
+target_link_libraries(runner tbb)
 install (TARGETS runner DESTINATION ${CMAKE_BINARY_DIR})
 
 

@@ -14,8 +14,8 @@ using namespace std;
 
 const int TILE_CACHE_CAPACITY = 32*1024;
 
-const  int taskBufferCapacity = 9000000;
-
+//const  int taskBufferCapacity = 9000000;
+const int taskBufferCapacity = 0;
 struct task {
     NODETYPE id1;
     NODETYPE id2;
@@ -45,6 +45,7 @@ vertex_task vertex_task_list[taskBufferCapacity*2];
 const int MAX_TASKS_PERTILE = 20000;
 
 const int MAX_VERTEXES = 2000;
+
 class Tile {
 //  No. of vertexes that are a part of this tile.
 //  The adjacency lists of all this vertexes should fit in memory.
@@ -55,8 +56,8 @@ class Tile {
     int tileCapacity = 0;
 
     int cPartialEmbeddings = 0;
-    int noVertices = 0;
-
+    int noIterations = 0;
+    const int MAXITERATIONS = 10;
     NODETYPE partialEmbeddings[MAX_TASKS_PERTILE];
 
 public:
@@ -89,6 +90,17 @@ public:
         return false;
     }
 
+    bool isTileNearlyFull(){
+        if(tileCapacity > .9 * TILE_CACHE_CAPACITY){
+//            cout << tileCapacity <<" ";
+            noIterations ++;
+            if(noIterations < MAXITERATIONS) return false;
+            noIterations = 0;
+            return true;
+        }
+        return false;
+    }
+
     int  costOfAdditionToTile(NODE nd1, NODE nd2){
         int cost = 0;
         if(vertexes->find(nd1.id)==vertexes->end()){
@@ -109,6 +121,10 @@ public:
             s = s + naive_intersect(&edgeArray[nd1.offset_plus], nd1.size_plus, &edgeArray[nd2.offset_plus], nd2.size_plus);
 
         }
+        cPartialEmbeddings = 0;
+        vertexes->clear();
+        noVertexes = 0;
+        tileCapacity = 0;
         return s;
     }
 
