@@ -33,7 +33,8 @@ class GHDNode {
 
     struct relation * rels;
 
-    std::unordered_map<int,neighbourhood_plus> * nmap;
+    neighbourhood_plus * nbs;
+//    std::unordered_map<int,neighbourhood_plus> * nmap;
 
 public:
 
@@ -54,5 +55,8 @@ GHDNode * getEdgeGHDNode();
 GHDNode * getSquareGHDNode();
 
 GHDNode * getNClique();
+
+GHDNode * get4Clique();
+
 
 #endif //V3_GHDNODE_H

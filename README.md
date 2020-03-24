@@ -4,10 +4,9 @@ Repository contains tools required to test various hypothesis.
 Components which I will expect will reused will have unit tests
 
 ## CURRENT SPRINT (ATTEMPT AT BUILDING A PROTOTYPE)
-1. I dont know where to start, what is expected, my mind is blank.
-3. I should take in a ghdNode and give out a count.
-4. Finish new design with 2 hour code modules.
-
+1. Naive evaluation: (2:03 - 4:00)
+2. Trie DS and exploration (5-7)
+3. Eval Attr (8-10)
 
 
 ## Old sprint

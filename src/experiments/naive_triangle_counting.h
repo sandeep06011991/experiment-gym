@@ -81,13 +81,13 @@ int triangle_counting(Graph *graph){
 //            if(nd1.size_plus <50)continue;
 //            if(nd2.size_plus <50)continue;
 
-            if(nd1.size_plus + nd2.size_plus > 0){
-                s =s  + naive_intersect(&edgeArray[nd1.offset_plus], nd1.size_plus, &edgeArray[nd2.offset_plus], nd2.size_plus);
-                continue;
-//              TODO: Add a naive executor for the thread.
-            }
+//            if(nd1.size_plus + nd2.size_plus > 0){
+//                s =s  + naive_intersect(&edgeArray[nd1.offset_plus], nd1.size_plus, &edgeArray[nd2.offset_plus], nd2.size_plus);
+//                continue;
+////              TODO: Add a naive executor for the thread.
+//            }
 //            s = s + naive_intersect(aNeighourArray, aSize, bNeighbourArray, bSize);
-//            s = s + hybrid_intersect(aNeighourArray, aSize, bNeighbourArray, bSize);
+            s = s + hybrid_intersect(aNeighourArray, aSize, &edgeArray[nd2.offset_plus], nd2.size_plus);
         }
     }
 

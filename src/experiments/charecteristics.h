@@ -132,5 +132,41 @@ void graphPartition(Graph *graph) {
 }
 
 
+// Measure impact of prefetch in ndArray
+void prefetchNdArray(Graph *graph){
+    start_timer(TOTALNODEPROCESSTIME);
+    NODE *ndArray = graph->getNodeArray();
+    NODETYPE *edgeArray = graph->getEdgeArray();
+    const int BATCH = 100;
+    NODE b[BATCH];int s = 0;
+    for(int i=0;i<graph->getNoVertexes();i++){
+        NODE nd = ndArray[i];
+        NODETYPE  *edges = &edgeArray[nd.offset_plus];
+        for(int j=0;j<nd.size_plus;j=j+BATCH){
+            int limit = j+BATCH;
+            if(limit > nd.size_plus) limit = nd.size_plus;
+            for(int k=j;k<limit;k++){
+                _mm_prefetch(&ndArray[edges[k]],2);
+            }
+            for(int k=j;k<limit;k++){
+                NODE nd1 = ndArray[edges[k]];
+                b[k-j] = nd1;
+                _mm_prefetch(&edgeArray[nd1.offset_plus],2);
+            }
+            for(int k=j;k<limit;k++){
+//               s = s + naive_intersect(edges,nd.size_plus,&edgeArray[b[k-j].offset_plus],b[k-j].size_plus);
+                s = s + hybrid_intersect(edges,nd.size_plus,&edgeArray[b[k-j].offset_plus],b[k-j].size_plus);
+            }
+//            NODETYPE nd2 = edges[j];
+//            NODE nd3 = ndArray[nd2];
+        }
+//        for(int j=0;j < nd.size_plus;j++){
+//            NODE nd2 = ndArray[edges[j]];
+//        }
+    }
+    stop_timer(TOTALNODEPROCESSTIME);
+    cout << "triangles found" << s <<"\n";
+    cout << "Impact of Prefetch" << get_timer(TOTALNODEPROCESSTIME) << "\n";
+}
 
 #endif //V3_CHARECTERISTICS_H

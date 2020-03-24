@@ -10,18 +10,30 @@
 #include <GHDNode.h>
 #include "AttrEval.h"
 #include "../Graph/GHDNode.h"
+#include "Trie.h"
 
 
 class Pipeline {
-
-    AttrEval * pipe;
 
     Graph * graph;
 
     GHDNode * ghdNode;
 
+    Trie * trie;
 
-    void initialize();
+    NODE * ndArray;
+
+    NODETYPE * edgeArray;
+
+    NODETYPE * tempCandidateSets;
+
+    NODETYPE * tempCandidateSets2;
+
+    const int MAXTEMPCANDIDATES = 10000;
+
+    int evaluate_level_blocks(int level, int startMetaBlock, int noBlocks);
+
+    int recursive_evaluate(int level);
 
 public:
 

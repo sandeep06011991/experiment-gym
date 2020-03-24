@@ -4,9 +4,10 @@
 
 #include "GHDNode.h"
 #include <unordered_map>
+#include <iostream>
 
 GHDNode::GHDNode(int noAttributes, int noRelations, relation *rels){
-    nmap = new std::unordered_map<int,neighbourhood_plus>();
+//    nmap = new std::unordered_map<int,neighbourhood_plus>();
 
     this->noAttributes = noAttributes;
     this->noRelations = noRelations;
@@ -17,7 +18,7 @@ GHDNode::GHDNode(int noAttributes, int noRelations, relation *rels){
     this->rels = rels;
 
     int * nattr = (int *)malloc(sizeof(int) * noAttributes * noAttributes);
-    neighbourhood_plus * nbs = (neighbourhood_plus *)malloc(sizeof(neighbourhood_plus) * noAttributes);
+    nbs = (neighbourhood_plus *)malloc(sizeof(neighbourhood_plus) * noAttributes);
 
     for(int i=0;i<noAttributes;i++){
         nbs[i].attrs = &nattr[i*noAttributes];
@@ -25,26 +26,24 @@ GHDNode::GHDNode(int noAttributes, int noRelations, relation *rels){
     }
     for(int i=0;i<this->noRelations;i++){
         relation r = rels[i];
+        assert(r.attr1 < r.attr2);
 //          Enforce order of enumeration
-        if(r.attr2 > i) continue;
+//        if(r.attr2 < i) continue;
         int p = nbs[r.attr2].size;
         nbs[r.attr2].attrs[p] = r.attr1;
         nbs[r.attr2].size ++;
     }
+
 }
 
 neighbourhood_plus GHDNode::getNPlusNeighbourhood(const int attribute){
     assert(attribute < noAttributes);
-    auto it = nmap->find(attribute);
-    assert(it!= nmap->end());
-    return it->second;
+    return nbs[attribute];
 }
 
 int GHDNode::getNoIncidentAttributes(int attribute){
     assert(attribute < noAttributes);
-    auto it = nmap ->find(attribute);
-    assert(it!= nmap ->end());
-    return it->second.size;
+    return nbs[attribute].size;
 }
 
 int GHDNode::getNoAttributes(){
@@ -59,6 +58,19 @@ GHDNode * getTriangleGHDNode(){
     rels[0] = {0,1};
     rels[1] = {0,2};
     rels[2] = {1,2};
+    return new GHDNode(noA, noR,rels);
+}
+
+GHDNode * get4Clique(){
+    const int noA = 4;
+    const int noR = 6;
+    struct relation * rels = (relation *)malloc((noR) * sizeof(struct relation));
+    rels[0] = {0,1};
+    rels[1] = {0,2};
+    rels[2] = {0,3};
+    rels[3] = {1,2};
+    rels[4] = {1,3};
+    rels[5] = {2,3};
     return new GHDNode(noA, noR,rels);
 }
 
