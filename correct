@@ -1,0 +1,133 @@
+mkdir -p build
+cd build;cmake3 ..;make install
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/sandeep/dojo/experiment-gym/build
+make[1]: Entering directory '/home/sandeep/dojo/experiment-gym/build'
+make[2]: Entering directory '/home/sandeep/dojo/experiment-gym/build'
+make[3]: Entering directory '/home/sandeep/dojo/experiment-gym/build'
+Scanning dependencies of target moduleLib
+make[3]: Leaving directory '/home/sandeep/dojo/experiment-gym/build'
+make[3]: Entering directory '/home/sandeep/dojo/experiment-gym/build'
+[  3%] Building CXX object src/CMakeFiles/moduleLib.dir/Operators/BitMatrixEvaluator.cpp.o
+[  7%] Linking CXX static library libmoduleLib.a
+make[3]: Leaving directory '/home/sandeep/dojo/experiment-gym/build'
+[ 64%] Built target moduleLib
+make[3]: Entering directory '/home/sandeep/dojo/experiment-gym/build'
+make[3]: Leaving directory '/home/sandeep/dojo/experiment-gym/build'
+make[3]: Entering directory '/home/sandeep/dojo/experiment-gym/build'
+[ 67%] Linking CXX executable runner
+make[3]: Leaving directory '/home/sandeep/dojo/experiment-gym/build'
+[ 75%] Built target runner
+make[3]: Entering directory '/home/sandeep/dojo/experiment-gym/build'
+make[3]: Leaving directory '/home/sandeep/dojo/experiment-gym/build'
+[ 82%] Built target preprocessor
+make[3]: Entering directory '/home/sandeep/dojo/experiment-gym/build'
+make[3]: Leaving directory '/home/sandeep/dojo/experiment-gym/build'
+make[3]: Entering directory '/home/sandeep/dojo/experiment-gym/build'
+[ 85%] Linking CXX executable test_driver
+make[3]: Leaving directory '/home/sandeep/dojo/experiment-gym/build'
+[100%] Built target test_driver
+make[2]: Leaving directory '/home/sandeep/dojo/experiment-gym/build'
+Install the project...
+-- Install configuration: "Debug"
+-- Installing: /home/sandeep/dojo/experiment-gym/build/runner
+-- Up-to-date: /home/sandeep/dojo/experiment-gym/build/preprocessor
+-- Installing: /home/sandeep/dojo/experiment-gym/build/test_driver
+make[1]: Leaving directory '/home/sandeep/dojo/experiment-gym/build'
+cd build;./runner
+E:1 6 xx
+4
+E:1 10 xx
+0
+E:1 9 xx
+1
+E:1 8 xx
+2
+E:1 7 xx
+3
+E:1 5 xx
+5
+E:1 2 xx
+8
+E:1 4 xx
+6
+E:1 3 xx
+7
+E:2 8 xx
+2
+E:2 6 xx
+4
+E:2 4 xx
+6
+E:2 9 xx
+1
+E:2 5 xx
+5
+E:2 3 xx
+7
+E:2 10 xx
+0
+E:2 7 xx
+3
+E:3 4 xx
+6
+E:3 5 xx
+5
+E:3 7 xx
+3
+E:3 8 xx
+2
+E:3 9 xx
+1
+E:3 10 xx
+0
+E:3 6 xx
+4
+E:4 5 xx
+5
+E:4 10 xx
+0
+E:4 9 xx
+1
+E:4 8 xx
+2
+E:4 7 xx
+3
+E:4 6 xx
+4
+E:5 6 xx
+4
+E:5 7 xx
+3
+E:5 8 xx
+2
+E:5 9 xx
+1
+E:5 10 xx
+0
+E:6 10 xx
+0
+E:6 9 xx
+1
+E:6 8 xx
+2
+E:6 7 xx
+3
+E:7 10 xx
+0
+E:7 9 xx
+1
+E:7 8 xx
+2
+E:8 10 xx
+0
+E:8 9 xx
+1
+E:9 10 xx
+0
+total time 0.000179
+Total Query Count:120
+construction6e-05
+Bit Intersection Evaluation 7e-06
+neighbour traversal time 5.3e-05

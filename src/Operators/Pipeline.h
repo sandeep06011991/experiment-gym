@@ -11,6 +11,7 @@
 #include "AttrEval.h"
 #include "../Graph/GHDNode.h"
 #include "Trie.h"
+#include "BitMatrixEvaluator.h"
 
 
 class Pipeline {
@@ -30,6 +31,8 @@ class Pipeline {
     NODETYPE * tempCandidateSets2;
 
     const int MAXTEMPCANDIDATES = 10000;
+
+    BitMatrixEvaluator * bitMatrixEvaluator;
 
     int evaluate_level_blocks(int level, int startMetaBlock, int noBlocks);
 

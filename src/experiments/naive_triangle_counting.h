@@ -69,23 +69,12 @@ int triangle_counting(Graph *graph){
     int total = 0;
     start_timer(TOTALNODEPROCESSTIME);
     for(int i=0;i<graph->getNoVertexes();i++){
-//    for(int i=0;i<1000;i++){
         NODE nd1 = ndArray[i];
         NODETYPE* aNeighourArray = &edgeArray[nd1.offset_plus];
         NODETYPE aSize = nd1.size_plus;
-//        cout << i <<"\n";
-//        if(aSize >10)continue;
         for(int j=0;j<nd1.size_plus;j++){
             NODETYPE bNode = aNeighourArray[j];
             NODE nd2 =  ndArray[bNode];
-//            if(nd1.size_plus <50)continue;
-//            if(nd2.size_plus <50)continue;
-
-//            if(nd1.size_plus + nd2.size_plus > 0){
-//                s =s  + naive_intersect(&edgeArray[nd1.offset_plus], nd1.size_plus, &edgeArray[nd2.offset_plus], nd2.size_plus);
-//                continue;
-////              TODO: Add a naive executor for the thread.
-//            }
 //            s = s + naive_intersect(aNeighourArray, aSize, bNeighbourArray, bSize);
             s = s + hybrid_intersect(aNeighourArray, aSize, &edgeArray[nd2.offset_plus], nd2.size_plus);
         }

@@ -137,7 +137,7 @@ void prefetchNdArray(Graph *graph){
     start_timer(TOTALNODEPROCESSTIME);
     NODE *ndArray = graph->getNodeArray();
     NODETYPE *edgeArray = graph->getEdgeArray();
-    const int BATCH = 100;
+    const int BATCH = 10;
     NODE b[BATCH];int s = 0;
     for(int i=0;i<graph->getNoVertexes();i++){
         NODE nd = ndArray[i];
@@ -157,12 +157,8 @@ void prefetchNdArray(Graph *graph){
 //               s = s + naive_intersect(edges,nd.size_plus,&edgeArray[b[k-j].offset_plus],b[k-j].size_plus);
                 s = s + hybrid_intersect(edges,nd.size_plus,&edgeArray[b[k-j].offset_plus],b[k-j].size_plus);
             }
-//            NODETYPE nd2 = edges[j];
-//            NODE nd3 = ndArray[nd2];
         }
-//        for(int j=0;j < nd.size_plus;j++){
-//            NODE nd2 = ndArray[edges[j]];
-//        }
+
     }
     stop_timer(TOTALNODEPROCESSTIME);
     cout << "triangles found" << s <<"\n";

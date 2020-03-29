@@ -58,5 +58,5 @@ GHDNode * getNClique();
 
 GHDNode * get4Clique();
 
-
+GHDNode * get5Clique();
 #endif //V3_GHDNODE_H

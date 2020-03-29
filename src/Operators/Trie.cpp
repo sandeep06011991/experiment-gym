@@ -7,6 +7,7 @@
 #include <cstring>
 #include <GHDNode.h>
 #include <iostream>
+#include <timer.h>
 #include "Trie.h"
 
 int TrieLevel::getNoContinuosMetaBlocksFromStart(int start){
@@ -79,7 +80,9 @@ void Trie::getIncidentNbs(NODETYPE *nd, neighbourhood_plus nb_plus, int level, L
     int* nbs_ids = nb_plus.attrs;
     int nbIndex = nb_plus.size-1;
     Level_Meta *lm = &lm1;
+    start_timer(REDMATRIXCONSTRUCTION);
     while((clevel >= 0) && (nbIndex >=0)){
+        assert(lm != nullptr);
         if(clevel == nbs_ids[nbIndex]){
             nd[nbIndex] = this->levels[clevel]->getElement(lm->block_start,offset);
             nbIndex--;
@@ -88,21 +91,22 @@ void Trie::getIncidentNbs(NODETYPE *nd, neighbourhood_plus nb_plus, int level, L
         lm = lm->parent;
         clevel --;
     }
+    stop_timer(REDMATRIXCONSTRUCTION);
 }
 
-void Trie::debugEmbedding(int level, Level_Meta lm, int offset){
-    NODETYPE embedding[level+1];
-    int max = level+1;
-    while(level >=0){
-        embedding[level] = levels[level]->getElement(lm.block_start,offset);
-        level --;
-        if(level == -1)break;
+void Trie::debugEmbedding(int level, Level_Meta lm, int offset) {
+    NODETYPE embedding[level + 1];
+    int max = level + 1;
+    while (level >= 0) {
+        embedding[level] = levels[level]->getElement(lm.block_start, offset);
+        level--;
+        if (level == -1)break;
         offset = lm.parent_offset;
         lm = *lm.parent;
-        }
-        std::cout <<"E:";
-        for(int i=0;i<max;i++){
+    }
+    std::cout <<"E:";
+    for(int i=0;i<max;i++){
         std::cout << embedding[i] << " ";
     }
-    std::cout <<"\n";
+    std::cout <<"xx\n";
 }

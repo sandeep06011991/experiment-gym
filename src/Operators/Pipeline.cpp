@@ -66,9 +66,23 @@ int Pipeline::recursive_evaluate(int levelNo){
     int start = 0;
     int noMetaBlocks = level->getNoMetaBlocks();
     int s = 0;
+    int t = 0;
     while(start < noMetaBlocks){
         int noBlocks = level->getNoContinuosMetaBlocksFromStart(start);
-        s = s + evaluate_level_blocks(levelNo, start, noBlocks);
+//        s = s + evaluate_level_blocks(levelNo, start, noBlocks);
+        if(ghdNode->getNoIncidentAttributes(levelNo+1)<2){
+            s = s + evaluate_level_blocks(levelNo, start, noBlocks);
+        }else{
+            if(levelNo == 0)cout << "inf" << start;
+            t = bitMatrixEvaluator->process(levelNo, start, noBlocks);
+            if(levelNo == ghdNode->getNoAttributes()-2){
+                s = s + t;
+            }else{
+                s = s + recursive_evaluate(levelNo + 1);
+                trie->clearLevel(levelNo +1);
+            }
+        }
+//      cout << "BitMatrix evaluator\n";
         start = start + noBlocks;
     }
     return s;
@@ -85,6 +99,7 @@ int Pipeline::run(){
     int s = 0;
     start_timer(TOTALNODEPROCESSTIME);
     for(int i=0;i<graph->getNoVertexes();i++){
+//        cout << i <<"\n";
         if(batchSize == TrieLevel::CHUNK){
             trie->appendTrieBlockToLevel(0, &root ,batch, batchSize);
             levelSize = levelSize + batchSize;
@@ -116,4 +131,5 @@ Pipeline::Pipeline(Graph *graph,GHDNode * ghdNode){
     tempCandidateSets = (NODETYPE *)malloc(sizeof(NODETYPE) * MAXTEMPCANDIDATES);
     tempCandidateSets2 = (NODETYPE *)malloc(sizeof(NODETYPE) * MAXTEMPCANDIDATES);
     this->trie = new Trie(ghdNode->getNoAttributes()-1);
+    bitMatrixEvaluator = new BitMatrixEvaluator(graph, ghdNode, trie);
 }

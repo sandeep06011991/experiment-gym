@@ -3,23 +3,12 @@
 Repository contains tools required to test various hypothesis.
 Components which I will expect will reused will have unit tests
 
-## CURRENT SPRINT (ATTEMPT AT BUILDING A PROTOTYPE)
-1. Naive evaluation: (2:03 - 4:00)
-2. Trie DS and exploration (5-7)
-3. Eval Attr (8-10)
+## Current Sprint
 
+1. Fix BUG in using a bitMatrix.
+2. Evaluate possible causes of slow down.
+3. Speed-up.
 
-## Old sprint
----- > Optimize square construction.
-                              Naive(48)              MinHeap
-Base Construction             16.9                      50.7
-Bit vector Construction       25.384                    12.40
-Bit Intersection.             4.8                       1.96
-Estimated Cost of construction: 17s
-
-1. Finish Square and capture measurements (Start 2:17)
-2. Do experiment measuring cost of division with and without powers of 2.
-3. Transfer BitMatrix computation
 
 ## EXPERIMENTS TO DO TOMORROW
 
