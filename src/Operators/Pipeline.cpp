@@ -70,7 +70,7 @@ int Pipeline::recursive_evaluate(int levelNo){
     while(start < noMetaBlocks){
         int noBlocks = level->getNoContinuosMetaBlocksFromStart(start);
 //        s = s + evaluate_level_blocks(levelNo, start, noBlocks);
-        if(ghdNode->getNoIncidentAttributes(levelNo+1)<2){
+        if(ghdNode->getNoIncidentAttributes(levelNo+1)<3){
             s = s + evaluate_level_blocks(levelNo, start, noBlocks);
         }else{
             t = bitMatrixEvaluator->process(levelNo, start, noBlocks);

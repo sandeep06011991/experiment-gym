@@ -43,7 +43,7 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
     for(int i=0;i<nbSize;i++){
         prev[i] = -1;
     }
-
+//    start_timer(BITMATRIXCONSTRUCTION);
     for(int bid=startMetaBlock;bid < startMetaBlock + noBlocks; bid ++){
         Level_Meta *lm =  &trie->levels[level]->meta_blocks[bid];
         for(int offset = 0;offset < lm->block_size; offset ++){
@@ -54,6 +54,7 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
             partials[totalNoPartials].isDone = false;
 //            trie->getIncidentNbs(nbs, ghdNode->getNPlusNeighbourhood(level+1), level, *lm, offset);
             trie->getIncidentNbs(nbs, ghdNode->getNPlusNeighbourhood(level+1), level, *lm, offset);
+
             for(int i=0;i<nbSize;i++){
                 if(prev[i]==-1){
                     VETuples[noVETuples].vid = nbs[i];
@@ -77,12 +78,11 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
             totalNoPartials ++;
         }
     }
+
 //    start_timer(BITMATRIXCONSTRUCTION);
     sort(VETuples, VETuples + noVETuples, [&](struct V_E_tuple a, struct V_E_tuple b){
         return a.vid < b.vid;
     });
-//    cout << noVETuples << ":" << hit << " " << noVETuples + hit << "\n";
-//    stop_timer(BITMATRIXCONSTRUCTION);
 
     VFTuples[0].vid = VETuples[0].vid;
     VFTuples[0].start = 0;
@@ -103,7 +103,7 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
         return a.freq > b.freq;
     });
     int size;
-
+//    stop_timer(BITMATRIXCONSTRUCTION);
     for(int i=0; i < noVFTuples;i++){
         b->setAnchor(VFTuples[i].vid);
         int j = 0;
@@ -115,7 +115,7 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
                 if(pe->isDone)continue;
                 pe->isDone = true;
                 trie->getIncidentNbs(nbs, ghdNode->getNPlusNeighbourhood(level+1), level, *pe->meta , pe->offset);
-                size = b->naiveIntersect(nbs, ghdNode->getNoIncidentAttributes(level+1), candidateSets);
+                size = b->bitIntersect(nbs, ghdNode->getNoIncidentAttributes(level+1), candidateSets);
                 if(level == ghdNode->getNoAttributes()-2){
                 s = s + size;
                 }else{
