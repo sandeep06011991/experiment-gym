@@ -73,7 +73,6 @@ int Pipeline::recursive_evaluate(int levelNo){
         if(ghdNode->getNoIncidentAttributes(levelNo+1)<2){
             s = s + evaluate_level_blocks(levelNo, start, noBlocks);
         }else{
-            if(levelNo == 0)cout << "inf" << start;
             t = bitMatrixEvaluator->process(levelNo, start, noBlocks);
             if(levelNo == ghdNode->getNoAttributes()-2){
                 s = s + t;
@@ -97,6 +96,7 @@ int Pipeline::run(){
     int batchSize = 0;
     int levelSize = 0;
     int s = 0;
+    reset_timer(TOTALNODEPROCESSTIME);
     start_timer(TOTALNODEPROCESSTIME);
     for(int i=0;i<graph->getNoVertexes();i++){
 //        cout << i <<"\n";

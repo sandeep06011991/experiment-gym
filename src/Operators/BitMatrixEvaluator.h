@@ -20,7 +20,8 @@ struct PEmbedding{
 // Vertex Embedding Id Tuple
 struct V_E_tuple{
     NODETYPE vid;
-    int pid;
+    int start;
+    int size;
 };
 
 struct V_F_tuple{
@@ -68,8 +69,6 @@ public:
     BitMatrixEvaluator(Graph *graph, GHDNode *ghdNode, Trie * trie);
 
     int process(int level, int startMetaBlock, int noBlocks);
-
-
 };
 
 

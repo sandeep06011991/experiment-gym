@@ -18,3 +18,6 @@ install (TARGETS runner DESTINATION ${CMAKE_BINARY_DIR})
 
 add_executable(preprocessor preprocessor.cpp)
 install (TARGETS preprocessor DESTINATION ${CMAKE_BINARY_DIR})
+
+add_executable(cliquegen cliquegen.cpp)
+install (TARGETS cliquegen DESTINATION ${CMAKE_BINARY_DIR})

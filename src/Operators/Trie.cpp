@@ -80,7 +80,6 @@ void Trie::getIncidentNbs(NODETYPE *nd, neighbourhood_plus nb_plus, int level, L
     int* nbs_ids = nb_plus.attrs;
     int nbIndex = nb_plus.size-1;
     Level_Meta *lm = &lm1;
-    start_timer(REDMATRIXCONSTRUCTION);
     while((clevel >= 0) && (nbIndex >=0)){
         assert(lm != nullptr);
         if(clevel == nbs_ids[nbIndex]){
@@ -91,7 +90,6 @@ void Trie::getIncidentNbs(NODETYPE *nd, neighbourhood_plus nb_plus, int level, L
         lm = lm->parent;
         clevel --;
     }
-    stop_timer(REDMATRIXCONSTRUCTION);
 }
 
 void Trie::debugEmbedding(int level, Level_Meta lm, int offset) {

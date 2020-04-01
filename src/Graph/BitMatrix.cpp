@@ -5,6 +5,7 @@
 #include <cstring>
 #include <intersection.h>
 #include <iostream>
+#include <timer.h>
 #include "BitMatrix.h"
 #include "cwchar"
 
@@ -31,6 +32,7 @@ void BitMatrix::setAnchor(NODETYPE id){
     prevOffset = prevOffset + noElementsInBitMatrix;
     noElementsInBitMatrix = 0;
     bitArraySizeInChar = (anchorNode.size_plus/8) + 1;
+//    cout << anchorNode.id << " " << anchorNode.size_plus << " " << bitArraySizeInChar <<"\n";
     if(prevOffset > 10000){
         memset((NODETYPE *)remapping, 0 ,graph->getNoVertexes() *sizeof(NODETYPE));
         prevOffset = 0;
@@ -38,7 +40,7 @@ void BitMatrix::setAnchor(NODETYPE id){
     assert(anchorNode.size_plus < (MAX_BIT_ARRAYSIZE/8)+1);
 }
 
-void BitMatrix::insertIntoBitMatrix(NODETYPE id){
+void inline BitMatrix::insertIntoBitMatrix(NODETYPE id){
     assert(remapping[id] <= prevOffset);
     if(remapping[id]<=prevOffset){
         noElementsInBitMatrix ++;
@@ -79,10 +81,14 @@ int BitMatrix::naiveIntersect(NODETYPE *nds, int noNodes, NODETYPE* resultArray)
 
 }
 
-int BitMatrix::expandBitArrayIntoResultVector(NODETYPE *resultArray){
+inline int BitMatrix::expandBitArrayIntoResultVector(NODETYPE *resultArray){
     int i=0;
     int size = 0;
     while(i<anchorNode.size_plus){
+        if(i%8==0 && defaultBitArray[i/8]==0){
+            i=i+8;
+            continue;
+        }
         int pos = i/8;
         int offset = 7-(i%8);
 //        bitV[bp/8] = bitV[bp/8] | 1U << (7-(bp%8));
@@ -100,22 +106,42 @@ int BitMatrix::bitIntersect(NODETYPE *nds, int noNodes, NODETYPE *resultArray) {
     int size = nd1.size_plus;
     if(size == 0) return 0;
     assert(noNodes>1);
+
     memset(defaultBitArray, 0xFF, bitArraySizeInChar);
     for(int j=0;j<noNodes;j++){
 //      perform intersection and get final list of candidates.
         NODE nd= ndArray[nds[j]];
         if(nd.id == anchor)continue;
+
         if(remapping[nd.id] <= prevOffset){
+//            start_timer(SIMDINTERSECTION);
             insertIntoBitMatrix(nd.id);
+//            stop_timer(SIMDINTERSECTION);
         }
         int offset = remapping[nd.id]-prevOffset;
 //      offload this line to another entity.
         unsigned char * bitArray = &bitMatrix[offset*bitArraySizeInChar];
-        for(int i=0; i < bitArraySizeInChar;i++){
+        unsigned int * a = (unsigned int *)defaultBitArray;
+        unsigned int * b = (unsigned int *)bitArray;
+        for(int i=0;i < 4 && i < bitArraySizeInChar;i++){
             defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
         }
+        for(int i=1;i<bitArraySizeInChar/4;i++){
+            a[i] = a[i] & b[i];
+        }
+        for(int i=(bitArraySizeInChar/4)*4; i < bitArraySizeInChar;i++){
+            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
+        }
+//        for(int i=0;i < bitArraySizeInChar;i++){
+//            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
+//        }
+
     }
+//    start_timer(ADGLISTINTERSECTION);
+//    if(noNodes ==3)return 0;
     int s = expandBitArrayIntoResultVector(resultArray);
+//    stop_timer(ADGLISTINTERSECTION);
 //    cout <<"aa" <<  anchorNode.id << " " << nds[1] <<" " <<  s <<"\n";
+
     return s;
 }

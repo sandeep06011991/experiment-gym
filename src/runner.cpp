@@ -52,21 +52,23 @@ void test(){
 /* New entry point. */
 int main(int argc, char *argv[]){
 //    Graph *    graph = new Graph("data/data1.graph");
-
+//        Graph *graph = new Graph("data/clique");
     Graph * graph = new Graph("data/com-youtube.ungraph.txt.ro");
 //    Graph * graph = new Graph("data/com-lj.ungraph.txt.ro");
 //    Graph *graph = new Graph("data/com-amazon.ungraph.txt.ro");
-    GHDNode * node = getTriangleGHDNode();
+//    GHDNode * node = getTriangleGHDNode();
 //    GHDNode * node = get4Clique();
-//    GHDNode * node = get5Clique();
+    GHDNode * node = get5Clique();
 //    GHDNode *node = getEdgeGHDNode();
-//    NaiveGHDEvaluator * n = new NaiveGHDEvaluator(graph,node);
-//    cout << "result" << n->evaluate() <<"\n";
-    Pipeline * pipeline = new Pipeline(graph, node);
-    pipeline->run();
-    cout << "construction" << get_timer(BITMATRIXCONSTRUCTION)<<"\n";
-    cout << "Bit Intersection Evaluation " << get_timer(BITSIMDINTERSECTIONTIME) <<"\n";
-    cout << "neighbour traversal time " << get_timer(REDMATRIXCONSTRUCTION) << "\n";
+    NaiveGHDEvaluator * n = new NaiveGHDEvaluator(graph,node);
+    cout << "result" << n->evaluate() <<"\n";
+//    Pipeline * pipeline = new Pipeline(graph, node);
+//    pipeline->run();
+    cout << "Sorting and preprocessing" << get_timer(BITMATRIXCONSTRUCTION)<<"\n";
+    cout << "Bit Intersection" << get_timer(SIMDINTERSECTION)<<"\n";
+//    cout << "Bit Intersection" << get_timer(ADGLISTINTERSECTION) << "\n";
+//    cout << "adj Traversal " << get_timer(BITSIMDINTERSECTIONTIME) <<"\n";
+//    cout << "neighbour traversal time " << get_timer(REDMATRIXCONSTRUCTION) << "\n";
 }
 
 /* Old entry point */

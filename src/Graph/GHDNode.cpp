@@ -88,7 +88,6 @@ GHDNode * get5Clique(){
     rels[8] = {2,4};
     rels[9] = {3,4};
     return new GHDNode(noA, noR,rels);
-
 }
 
 

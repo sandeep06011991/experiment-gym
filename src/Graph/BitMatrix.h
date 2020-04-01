@@ -46,7 +46,7 @@ public:
 
     BitMatrix(Graph *graph);
 
-    int expandBitArrayIntoResultVector(NODETYPE *resultArray);
+    inline int expandBitArrayIntoResultVector(NODETYPE *resultArray);
 
     void setAnchor(NODETYPE anchor);
 
