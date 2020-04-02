@@ -6,7 +6,9 @@
 #define V3_BITMATRIX_H
 
 
+#include <BitDictionary.h>
 #include "graph.h"
+#include "GHDNode.h"
 
 class BitMatrix {
 
@@ -20,6 +22,8 @@ class BitMatrix {
 
     NODE anchorNode;
 
+    GHDNode *node;
+
     const int MAX_BITMATRIX_SIZE = 100000;
 
     const int MAX_BIT_ARRAYSIZE = 10000;
@@ -29,6 +33,8 @@ class BitMatrix {
     NODETYPE * tempCandidateSets2;
 
     NODETYPE * remapping;
+
+    bool count;
 
     int prevOffset = 0;
 
@@ -40,15 +46,19 @@ class BitMatrix {
 
     int noElementsInBitMatrix;
 
+    int level;
+
+    BitDictionary *bitDictionary;
+
     void insertIntoBitMatrix(NODETYPE id);
 
 public:
 
-    BitMatrix(Graph *graph);
+    BitMatrix(Graph *graph, GHDNode *node);
 
     inline int expandBitArrayIntoResultVector(NODETYPE *resultArray);
 
-    void setAnchor(NODETYPE anchor);
+    void setAnchor(NODETYPE anchor, int level);
 
     inline void bitArrayIntersection(char * result, char * bitArray);
 

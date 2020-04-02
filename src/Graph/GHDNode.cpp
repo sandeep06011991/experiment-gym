@@ -90,6 +90,18 @@ GHDNode * get5Clique(){
     return new GHDNode(noA, noR,rels);
 }
 
+GHDNode * getSquareNode(){
+    const int noA = 4;
+    const int noR = 4;
+    struct relation * rels = (relation *)malloc((noR) * sizeof(struct relation));
+    rels[0] = {0,1};
+    rels[1] = {0,2};
+    rels[2] = {1,3};
+    rels[3] = {2,3};
+    return new GHDNode(noA, noR,rels);
+}
+
+
 
 GHDNode * getEdgeGHDNode(){
     const int noA = 2;
@@ -100,3 +112,24 @@ GHDNode * getEdgeGHDNode(){
 }
 
 
+GHDNode * get6Clique(){
+    const int noA = 6;
+    const int noR = 14;
+    struct relation * rels = (relation *)malloc((noR) * sizeof(struct relation));
+    rels[0] = {0,1};
+    rels[1] = {0,2};
+    rels[2] = {0,3};
+    rels[3] = {0,4};
+    rels[4] = {0,5};
+    rels[5] = {1,2};
+    rels[6] = {1,3};
+    rels[7] = {1,4};
+    rels[8] = {1,5};
+    rels[9] = {2,3};
+    rels[10] = {2,4};
+    rels[11] = {2,5};
+    rels[12] = {3,4};
+    rels[13] = {3,5};
+    rels[14] = {4,5};
+    return new GHDNode(noA, noR,rels);
+}

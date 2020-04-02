@@ -14,6 +14,7 @@
 struct PEmbedding{
     Level_Meta *meta;
     int offset;
+    int nbStart;
     bool isDone;
 };
 
@@ -38,6 +39,8 @@ class BitMatrixEvaluator {
 
     static const int MAX_V_F_TUPLE = 10000;
 
+    static const int MAX_NB_NODES = 10000;
+
     int totalNoPartials = 0;
 
     int noVETuples = 0;
@@ -45,6 +48,10 @@ class BitMatrixEvaluator {
     int noVFTuples = 0;
 
     const int MAX_NEIGHBOURS = 10;
+
+    NODETYPE * nbNodes;
+
+    int noNbNodes = 0;
 
     struct PEmbedding * partials;
 

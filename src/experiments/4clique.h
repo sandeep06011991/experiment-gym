@@ -51,6 +51,7 @@ NODETYPE naive4cliqueCounting(Graph* graph){
     NODE *ndArray = graph->getNodeArray();
     NODETYPE *edgeArray = graph->getEdgeArray();
     int res = 0;
+    reset_timer(TOTALNODEPROCESSTIME);
     start_timer(TOTALNODEPROCESSTIME);
 //    for(int i=0;i<0;i++){
     for(int i=0;i<graph->getNoVertexes();i++){

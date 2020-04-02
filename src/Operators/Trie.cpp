@@ -57,10 +57,14 @@ void TrieLevel::appendTrieBlockToLevel(struct Level_Meta meta, NODETYPE * data, 
 }
 
 Trie::Trie(int noLevels){
+    assert(noLevels < MAX_QUERY_SIZE);
    levels = (TrieLevel **)malloc(sizeof(TrieLevel *) * noLevels);
    this->noLevels = noLevels;
    for(int i=0; i<noLevels; i++){
        levels[i] = new TrieLevel(i);
+   }
+   for(int i=0;i<noLevels;i++){
+       cache[i].level = -1;
    }
 }
 

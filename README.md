@@ -5,9 +5,9 @@ Components which I will expect will reused will have unit tests
 
 ## Current Sprint
 
-1. Fix BUG in using a bitMatrix.
-2. Evaluate possible causes of slow down.
-3. Speed-up.
+1. Stabilize code and start experiments on elba goal.
+
+
 
 
 ## EXPERIMENTS TO DO TOMORROW

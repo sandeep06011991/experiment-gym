@@ -29,6 +29,7 @@ NaiveGHDEvaluator::NaiveGHDEvaluator(Graph *graph, GHDNode *ghd){
 int NaiveGHDEvaluator::evaluate(){
     int s = 0;
     NODE * ndArray = graph->getNodeArray();
+    reset_timer(TOTALNODEPROCESSTIME);
     start_timer(TOTALNODEPROCESSTIME);
     for(int i=0;i<graph->getNoVertexes();i++){
         currentEmbedding[0] = ndArray[i].id;

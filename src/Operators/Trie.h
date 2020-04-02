@@ -31,7 +31,7 @@ public:
 
     static const int DATACAPACITY = 1000000;
     static const int METACAPACITY = 1000000;
-    static const int CHUNK = DATACAPACITY / 1000;
+    static const int CHUNK = 1000;
 
     void appendTrieBlockToLevel(struct Level_Meta meta ,NODETYPE * data, int size);
 
@@ -50,6 +50,13 @@ public:
 
 };
 
+struct EmbeddingCache{
+    NODETYPE id;
+    Level_Meta *lm;
+    int offset;
+    int level;
+};
+
 class Trie {
 
     int noLevels;
@@ -57,6 +64,8 @@ class Trie {
 public:
 
     TrieLevel ** levels;
+
+    EmbeddingCache cache[MAX_QUERY_SIZE];
 
     Trie(int noLevels);
 

@@ -52,11 +52,13 @@ GHDNode * getTriangleGHDNode();
 
 GHDNode * getEdgeGHDNode();
 
-GHDNode * getSquareGHDNode();
-
 GHDNode * getNClique();
 
 GHDNode * get4Clique();
 
 GHDNode * get5Clique();
+
+GHDNode * get6Clique();
+
+GHDNode * getSquareNode();
 #endif //V3_GHDNODE_H

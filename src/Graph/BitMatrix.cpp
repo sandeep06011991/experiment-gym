@@ -11,11 +11,12 @@
 
 
 
-BitMatrix::BitMatrix(Graph *graph){
+BitMatrix::BitMatrix(Graph *graph, GHDNode * node){
     this->graph = graph;
     ndArray = graph->getNodeArray();
     edgeArray = graph->getEdgeArray();
-
+    this->node = node;
+    bitDictionary = new BitDictionary();
     tempCandidateSets = (NODETYPE *)malloc(sizeof(NODETYPE)*10000);
     tempCandidateSets2 = (NODETYPE *)malloc(sizeof(NODETYPE)*10000);
 
@@ -26,8 +27,10 @@ BitMatrix::BitMatrix(Graph *graph){
 //    defaultBitArray
 }
 
-void BitMatrix::setAnchor(NODETYPE id){
+void BitMatrix::setAnchor(NODETYPE id, int level){
     this->anchor = id;
+    this->level = level;
+    count = level == node->getNoAttributes() -2 ;
     anchorNode = ndArray[id];
     prevOffset = prevOffset + noElementsInBitMatrix;
     noElementsInBitMatrix = 0;
@@ -82,22 +85,42 @@ int BitMatrix::naiveIntersect(NODETYPE *nds, int noNodes, NODETYPE* resultArray)
 }
 
 inline int BitMatrix::expandBitArrayIntoResultVector(NODETYPE *resultArray){
-    int i=0;
     int size = 0;
-    while(i<anchorNode.size_plus){
-        if(i%8==0 && defaultBitArray[i/8]==0){
-            i=i+8;
-            continue;
+    assert(anchorNode.size_plus<10000);
+    for(int i=0; i< (anchorNode.size_plus/8)+1; i++){
+        if(defaultBitArray[i] == 0)continue;
+        for(int j=7;j>=0;j--){
+            if(i*8+7-j > anchorNode.size_plus)continue;
+            if(defaultBitArray[i] & 1U << (j)){
+                resultArray[size] = edgeArray[anchorNode.offset_plus + i*8+7-j];
+                size ++;
+            }
         }
-        int pos = i/8;
-        int offset = 7-(i%8);
-//        bitV[bp/8] = bitV[bp/8] | 1U << (7-(bp%8));
-        if(defaultBitArray[pos] & 1U << (offset)){
-            resultArray[size] = edgeArray[anchorNode.offset_plus + i];
-            size ++;
-        }
-        i++;
     }
+//    for(int i=anchorNode.size_plus/8; i< (anchorNode.size_plus/8)-1; i++){
+//        if(defaultBitArray[i] == 0)continue;
+//        for(int j=7;j>=0;j--){
+//            if(defaultBitArray[i] & 1U << (j)){
+//                resultArray[size] = edgeArray[anchorNode.offset_plus + i];
+//                size ++;
+//            }
+//        }
+//    }
+//    int i=0;
+//    while(i<anchorNode.size_plus){
+//        if(i%8==0 && defaultBitArray[i/8]==0){
+//            i=i+8;
+//            continue;
+//        }
+//        int pos = i/8;
+//        int offset = 7-(i%8);
+////        bitV[bp/8] = bitV[bp/8] | 1U << (7-(bp%8));
+//        if(defaultBitArray[pos] & 1U << (offset)){
+//            resultArray[size] = edgeArray[anchorNode.offset_plus + i];
+//            size ++;
+//        }
+//        i++;
+//    }
     return size;
 }
 
@@ -123,23 +146,41 @@ int BitMatrix::bitIntersect(NODETYPE *nds, int noNodes, NODETYPE *resultArray) {
         unsigned char * bitArray = &bitMatrix[offset*bitArraySizeInChar];
         unsigned int * a = (unsigned int *)defaultBitArray;
         unsigned int * b = (unsigned int *)bitArray;
+        char zero = 0x00;
+        int zeroI = 0;
+//        if(bitArraySizeInChar > 64){
+//            cout << bitArraySizeInChar << " ";
+//        }
         for(int i=0;i < 4 && i < bitArraySizeInChar;i++){
             defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
+            zero = zero | bitArray[i];
         }
         for(int i=1;i<bitArraySizeInChar/4;i++){
             a[i] = a[i] & b[i];
+            zeroI = zeroI | b[i];
         }
         for(int i=(bitArraySizeInChar/4)*4; i < bitArraySizeInChar;i++){
             defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
+            zero = zero | bitArray[i];
         }
 //        for(int i=0;i < bitArraySizeInChar;i++){
 //            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
+//            zero = zero | defaultBitArray[i];
 //        }
-
+        if(!zero && !zeroI){
+            return  0;
+        }
     }
 //    start_timer(ADGLISTINTERSECTION);
-//    if(noNodes ==3)return 0;
-    int s = expandBitArrayIntoResultVector(resultArray);
+    int s = 0;
+    if(count){
+        for(int i=0;i<bitArraySizeInChar;i++){
+           s = s + bitDictionary->dic[(int)defaultBitArray[i]];
+        }
+        return s;
+    }
+
+//    int s = expandBitArrayIntoResultVector(resultArray);
 //    stop_timer(ADGLISTINTERSECTION);
 //    cout <<"aa" <<  anchorNode.id << " " << nds[1] <<" " <<  s <<"\n";
 
