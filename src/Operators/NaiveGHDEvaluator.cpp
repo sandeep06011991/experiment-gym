@@ -35,7 +35,9 @@ int NaiveGHDEvaluator::evaluate(){
         currentEmbedding[0] = ndArray[i].id;
         s = s + recursiveEvaluate(1);
     }
-    stop_timer(TOTALNODEPROCESSTIME);
+    stop_timer(TOTALNODEPROCESSTIME);/* New entry point. */
+// Does not work for anything other than cliques
+
     cout << "total NAIVE processing time = " << get_timer(TOTALNODEPROCESSTIME) << "\n";
     return s;
 }
@@ -66,11 +68,6 @@ int NaiveGHDEvaluator::recursiveEvaluate(int currEmbeddingSize) {
     if(candidateSetSizes[currEmbeddingSize]==0)return 0;
     int s = 0;
     if(currEmbeddingSize == ghdNode->getNoAttributes()-1){
-//        for(int a=0;a<currEmbeddingSize;a++){
-//            cout << currentEmbedding[a] <<" " ;
-//        }
-//        cout << candidateSetSizes[currEmbeddingSize] << "\n";
-//        assert(false);
         s = s + candidateSetSizes[currEmbeddingSize];
         return s;
     }

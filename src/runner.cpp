@@ -22,6 +22,8 @@ using namespace std;
 
 
 /* New entry point. */
+// Does not work for anything other than cliques
+
 int main(int argc, char *argv[]){
 //    Graph *    graph = new Graph("data/data1.graph");
 //    Graph *graph = new Graph("data/clique");
@@ -32,8 +34,8 @@ int main(int argc, char *argv[]){
 //    GHDNode * node = getTriangleGHDNode();
 //        int a =  graph->getNoVertexes();
 
-//    GHDNode * node = get6Clique();
-    GHDNode * node = get5Clique();
+    GHDNode * node = get6Clique();
+//    GHDNode * node = get5Clique();
 //    GHDNode * node = getSquareNode();
 //    GHDNode * node = get4Clique();
 
@@ -44,9 +46,9 @@ int main(int argc, char *argv[]){
 
 
     cout << "Sorting and preprocessing" << get_timer(BITMATRIXCONSTRUCTION)<<"\n";
-//    cout << "Traversal" << get_timer(SIMDINTERSECTION)<<"\n";
+    cout << "Bit intersection" << get_timer(SIMDINTERSECTION)<<"\n";
 //    cout << "Bit Intersection" << get_timer(ADGLISTINTERSECTION) << "\n";
-//    cout << "adj Traversal " << get_timer(BITSIMDINTERSECTIONTIME) <<"\n";
+    cout << " Intersection " << get_timer(BITSIMDINTERSECTIONTIME) <<"\n";
 //    cout << "neighbour traversal time " << get_timer(REDMATRIXCONSTRUCTION) << "\n";
 }
 

@@ -10,7 +10,9 @@
 #include "../Graph/GHDNode.h"
 #include "Trie.h"
 
-/* Do not split the granularity of meta blocks. */
+/* Do not split the granularity of meta blocks. Might have to do this in later versions.
+ * There are other alternatives such as skipping those high degree vertexes.
+ * */
 int Pipeline::evaluate_level_blocks(int level, int startMetaBlock, int noMetaBlocks){
     neighbourhood_plus nbs = ghdNode->getNPlusNeighbourhood(level+1);
     int s = 0;
@@ -19,11 +21,14 @@ int Pipeline::evaluate_level_blocks(int level, int startMetaBlock, int noMetaBlo
     assert(nbs.size >0);
 
     if(level != ghdNode->getNoAttributes()-2)trie->clearLevel(level+1);
+
     for(int blockid = startMetaBlock;blockid < startMetaBlock + noMetaBlocks; blockid++){
         lm = trie->levels[level]->meta_blocks[blockid];
+        trie->getIncidentNbs(incidentNodeId, nbs, level, lm, 0);
         for(int i=0;i<lm.block_size;i++){
+            incidentNodeId[level] = trie->levels[level]->data[lm.block_start + i];
 //            trie->debugEmbedding(level, lm, i);
-            trie->getIncidentNbs(incidentNodeId, nbs, level, lm, i);
+//            trie->getIncidentNbs(incidentNodeId, nbs, level, lm, i);
             NODE nd1 = ndArray[incidentNodeId[0]];
             assert(nd1.size_plus < MAXTEMPCANDIDATES);
             int size = nd1.size_plus;
@@ -117,7 +122,7 @@ int Pipeline::run(){
     s = s + recursive_evaluate(0);
     trie->clearLevel(0);
     stop_timer(TOTALNODEPROCESSTIME);
-    cout << "total time " << get_timer(TOTALNODEPROCESSTIME) <<"\n";
+    cout << "total GHDNode Processing time " << get_timer(TOTALNODEPROCESSTIME) <<"\n";
     cout << "Total Query Count:" << s <<"\n";
 }
 

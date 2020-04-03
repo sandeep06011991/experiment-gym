@@ -36,7 +36,7 @@ TrieLevel::TrieLevel(int level){
     noDataBlocks = 0;
 }
 
-void TrieLevel::clear(){
+inline void TrieLevel::clear(){
     noMetaBlocks = 0;
     noDataBlocks = 0;
 }
@@ -45,7 +45,7 @@ inline NODETYPE TrieLevel::getElement(int start, int offset){
     return this->data[start+offset];
 }
 
-void TrieLevel::appendTrieBlockToLevel(struct Level_Meta meta, NODETYPE * data, int size){
+inline void TrieLevel::appendTrieBlockToLevel(struct Level_Meta meta, NODETYPE * data, int size){
     assert(noMetaBlocks < METACAPACITY);
     assert(noDataBlocks + size < DATACAPACITY);
     meta.block_start = noDataBlocks;

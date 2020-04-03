@@ -12,6 +12,7 @@
 
 class BitMatrix {
 
+public:
     Graph *graph;
 
     NODE *ndArray;
@@ -52,7 +53,7 @@ class BitMatrix {
 
     void insertIntoBitMatrix(NODETYPE id);
 
-public:
+
 
     BitMatrix(Graph *graph, GHDNode *node);
 

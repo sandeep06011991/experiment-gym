@@ -5,6 +5,30 @@
 #include <iostream>
 #include "BitMatrixEvaluator.h"
 #include "timer.h"
+#include <cstring>
+
+inline int naivebitMark_intersect(NODETYPE* baseA, NODETYPE baseSize, NODETYPE* arrB,
+                           NODETYPE sizeB ,unsigned char *bitV){
+    int bp = 0;
+    int ap = 0;
+    int t = 0;
+    while((bp < baseSize) && (ap < sizeB)){
+        if (baseA[bp] == arrB[ap]) {
+            bitV[bp/8] = bitV[bp/8] | 1U << (7-(bp%8));
+            t++;
+            bp ++ ;
+            ap ++ ;
+            continue;
+        }
+        if (baseA[bp] < arrB[ap]) {
+            bp ++;
+        } else {
+            ap ++;
+        }
+    }
+    return t;
+}
+
 
 BitMatrixEvaluator::BitMatrixEvaluator(Graph *graph,GHDNode *ghdNode, Trie * trie){
     b = new BitMatrix(graph,ghdNode);
@@ -31,6 +55,99 @@ void BitMatrixEvaluator::checkIfFitsInDatastructures( int levelNo, int startMeta
     assert( ghdNode->getNoIncidentAttributes(levelNo+1) < MAX_NEIGHBOURS );
 }
 
+void inline BitMatrix::insertIntoBitMatrix(NODETYPE id){
+//    assert(remapping[id] <= prevOffset);
+//    if(remapping[id]<=prevOffset){
+        noElementsInBitMatrix ++;
+        assert(noElementsInBitMatrix * bitArraySizeInChar < MAX_BITMATRIX_SIZE);
+        NODE nd = ndArray[id];
+        remapping[id] = prevOffset + noElementsInBitMatrix;
+        int pos = remapping[id] - prevOffset;
+        unsigned  char * bitMatrixArray = &bitMatrix[bitArraySizeInChar * pos];
+        memset(bitMatrixArray, 0, sizeof(unsigned char) * bitArraySizeInChar);
+        naivebitMark_intersect(&edgeArray[anchorNode.offset_plus],
+                           anchorNode.size_plus, &edgeArray[nd.offset_plus], nd.size_plus,
+                           bitMatrixArray);
+
+//    }
+}
+
+inline int BitMatrix::expandBitArrayIntoResultVector(NODETYPE *resultArray){
+    int size = 0;
+    assert(anchorNode.size_plus<10000);
+    for(int i=0; i< (anchorNode.size_plus/8)+1; i++){
+        if(defaultBitArray[i] == 0)continue;
+        for(int j=7;j>=0;j--){
+            if(i*8+7-j > anchorNode.size_plus)continue;
+            if(defaultBitArray[i] & 1U << (j)){
+                resultArray[size] = edgeArray[anchorNode.offset_plus + i*8+7-j];
+                size ++;
+            }
+        }
+    }
+    return size;
+}
+
+inline int BitMatrix::bitIntersect(NODETYPE *nds, int noNodes, NODETYPE *resultArray) {
+    NODE nd1 = ndArray[nds[0]];
+    int size = nd1.size_plus;
+    if(size == 0) return 0;
+    assert(noNodes>1);
+    memset(defaultBitArray, 0xFF, bitArraySizeInChar);
+    for(int j=0;j<noNodes;j++){
+//      perform intersection and get final list of candidates.
+        NODE nd= ndArray[nds[j]];
+        if(nd.id == anchor)continue;
+
+        if(remapping[nd.id] <= prevOffset){
+//            start_timer(SIMDINTERSECTION);
+            insertIntoBitMatrix(nd.id);
+//            stop_timer(SIMDINTERSECTION);
+        }
+        int offset = remapping[nd.id]-prevOffset;
+//      offload this line to another entity.
+        unsigned char * bitArray = &bitMatrix[offset*bitArraySizeInChar];
+        unsigned int * a = (unsigned int *)defaultBitArray;
+        unsigned int * b = (unsigned int *)bitArray;
+        char zero = 0x00;
+        int zeroI = 0;
+//        if(bitArraySizeInChar > 64){
+//            cout << bitArraySizeInChar << " ";
+//        }
+        for(int i=0;i < 4 && i < bitArraySizeInChar;i++){
+            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
+            zero = zero | bitArray[i];
+        }
+        for(int i=1;i<bitArraySizeInChar/4;i++){
+            a[i] = a[i] & b[i];
+            zeroI = zeroI | b[i];
+        }
+        for(int i=(bitArraySizeInChar/4)*4; i < bitArraySizeInChar;i++){
+            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
+            zero = zero | bitArray[i];
+        }
+//        for(int i=0;i < bitArraySizeInChar;i++){
+//            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
+//            zero = zero | defaultBitArray[i];
+//        }
+        if(!zero && !zeroI){
+            return  0;
+        }
+    }
+//    start_timer(ADGLISTINTERSECTION);
+    int s = 0;
+//    if(count){
+//        for(int i=0;i<bitArraySizeInChar;i++){
+//           s = s + bitDictionary->dic[(int)defaultBitArray[i]];
+//        }
+//        return s;
+//    }
+
+    s = expandBitArrayIntoResultVector(resultArray);
+
+    return s;
+}
+
 int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
     checkIfFitsInDatastructures(level, startMetaBlock, noBlocks);
     // populate key datastructures.
@@ -46,6 +163,7 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
     for(int i=0;i<nbSize;i++){
         prev[i] = -1;
     }
+//    return 0;
     start_timer(BITMATRIXCONSTRUCTION);
     for(int bid=startMetaBlock;bid < startMetaBlock + noBlocks; bid ++){
         Level_Meta *lm =  &trie->levels[level]->meta_blocks[bid];
@@ -115,28 +233,22 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
         return a.freq > b.freq;
     });
     int size;
-//    return 0;
     stop_timer(BITMATRIXCONSTRUCTION);
+    start_timer(BITSIMDINTERSECTIONTIME);
+//    return 0;
     for(int i=0; i < noVFTuples;i++){
         b->setAnchor(VFTuples[i].vid,level);
-        int a = 0;
         int j = 0;
         int f_tuple_offset = 0;
-        bool atleastOne = false;
         while(j < VFTuples[i].freq){
             V_E_tuple *ve = &VETuples[VFTuples[i].start + f_tuple_offset];
             for(int poffset = 0; poffset < ve->size; poffset ++){
                 PEmbedding* pe = &partials[ve->start + poffset];
                 if(pe->isDone)continue;
                 pe->isDone = true;
-                atleastOne = true;
-                a++;
-                size = 0;
-//                continue;
-//                trie->getIncidentNbs(nbs, ghdNode->getNPlusNeighbourhood(level+1), level, *pe->meta , pe->offset);
                 size = b->bitIntersect(&nbNodes[pe->nbStart], ghdNode->getNoIncidentAttributes(level+1), candidateSets);
                 if(level == ghdNode->getNoAttributes()-2){
-                s = s + size;
+                    s = s + size;
                 }else{
                     s = s + size;
                     struct Level_Meta lm;
@@ -151,57 +263,7 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
             j = j + ve->size;
         }
 
-//        if(a!=0)cout <<  a << " " << VFTuples[i].freq << "  " <<graph->getNodeArray()[VFTuples[i].vid].size_plus <<"\n";
-
-//         j=0;
-//        f_tuple_offset = 0;
-//        while(j < VFTuples[i].freq) {
-//            V_E_tuple *ve = &VETuples[VFTuples[i].start + f_tuple_offset];
-//            for (int poffset = 0; poffset < ve->size; poffset++) {
-//                PEmbedding *pe = &partials[ve->start + poffset];
-//                if (pe->isDone)continue;
-//            }
-//            j = j + ve->size;
-//        }
     }
-//        for(int j=0; j < VFTuples[i].freq;j++){
-//            PEmbedding* pe = &partials[VETuples[VFTuples[i].start + j].pid];
-//            assert(pe->meta != nullptr);
-//            if(pe->isDone)continue;
-//            pe->isDone = true;
-////            trie->debugEmbedding(level,*pe->meta, pe->offset);
-////            trie->debugEmbedding(level,*pe->meta,pe->offset);
-////            start_timer(BITSIMDINTERSECTIONTIME);
-//            trie->getIncidentNbs(nbs, ghdNode->getNPlusNeighbourhood(level+1), level, *pe->meta , pe->offset);
-////            trie->getIncidentNbs(nbs, ghdNode->getNPlusNeighbourhood(level+1), level, *pe->meta , pe->offset);
-//
-//            //            stop_timer(BITSIMDINTERSECTIONTIME);
-////            start_timer(ADGLISTINTERSECTION);
-//            size = 0;
-////            if(level == ghdNode->getNoAttributes()){
-////                size = b->naiveIntersect(nbs, ghdNode->getNoIncidentAttributes(level+1), candidateSets);
-////            }else{
-//            size = b->bitIntersect(nbs, ghdNode->getNoIncidentAttributes(level+1), candidateSets);
-////            }
-////            size = b->naiveIntersect(nbs,ghdNode->getNoIncidentAttributes(level+1), candidateSets);
-////            stop_timer(ADGLISTINTERSECTION);
-//            //            cout << size <<"\n";
-////            cout << "size" << size << "\n";
-//            if(level == ghdNode->getNoAttributes()-2){
-//                s = s + size;
-//            }else{
-//                s = s + size;
-//                struct Level_Meta lm;
-//                lm.parent = pe->meta;
-//                assert(lm.parent != nullptr);
-//                lm.parent_offset = pe->offset;
-////                cout <<"inserting " << lm.parent <<"\n";
-//                trie->appendTrieBlockToLevel(level+1, &lm, candidateSets, size);
-//            }
-//        }
-//
-//    }
-//
-////    stop_timer(SIMDINTERSECTION);
+    stop_timer(BITSIMDINTERSECTIONTIME);
     return  s;
 }
