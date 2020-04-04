@@ -75,8 +75,13 @@ void inline BitMatrix::insertIntoBitMatrix(NODETYPE id){
 inline int BitMatrix::expandBitArrayIntoResultVector(NODETYPE *resultArray){
     int size = 0;
     assert(anchorNode.size_plus<10000);
+    int r = 0; bool atleastOnce = false;
     for(int i=0; i< (anchorNode.size_plus/8)+1; i++){
-        if(defaultBitArray[i] == 0)continue;
+        if(defaultBitArray[i] == 0){
+//            r++;
+            continue;
+        }
+        atleastOnce = true;
         for(int j=7;j>=0;j--){
             if(i*8+7-j > anchorNode.size_plus)continue;
             if(defaultBitArray[i] & 1U << (j)){
@@ -85,6 +90,75 @@ inline int BitMatrix::expandBitArrayIntoResultVector(NODETYPE *resultArray){
             }
         }
     }
+
+//    cout << r * 100.0 / ((anchorNode.size_plus/8)+1) <<" ";
+    return size;
+}
+
+inline int BitMatrix::sparseBitIntersect(NODETYPE *nds, int noNodes, NODETYPE *resultArray){
+    NODE nd1 = ndArray[nds[0]];
+    int size = nd1.size_plus;
+    if(size == 0) return 0;
+    assert ( noNodes>1 );
+    memset(defaultBitArray, 0xFF, bitArraySizeInChar);
+
+//    NODETYPE bitNodes[noNodes];
+    NODETYPE offsets[noNodes];
+    unsigned int * intPointers[noNodes];
+    int n = 0;
+    for(int i=0; i<noNodes; i++){
+        if(nds[i] == anchor)continue;
+        if(remapping[nds[i]] <= prevOffset){
+            insertIntoBitMatrix(nds[i]);
+        }
+//        bitNodes[n] = nds[i];
+        offsets[n] = remapping[nds[i]]-prevOffset;
+        intPointers[n] = (unsigned int *) &bitMatrix[offsets[n]*bitArraySizeInChar];
+        n++;
+    }
+    NODETYPE noZeros[bitArraySizeInChar];
+    int noZeroCount =0;
+    unsigned int * intBitArray = (unsigned int *)defaultBitArray;
+    for(int i=0;i< bitArraySizeInChar/4;i=i+1){
+        for(int j=0;j<n;j++){
+            intBitArray[i]= intBitArray[i] & intPointers[j][i];
+        }
+        if( intBitArray[i]!=0){
+            noZeros[noZeroCount] = i*4;
+            noZeros[noZeroCount+1] = 4*i+1;
+            noZeros[noZeroCount+2] = 4*i+2;
+            noZeros[noZeroCount+3] = 4*i+3;
+            noZeroCount = noZeroCount + 4;
+        }
+    }
+    for(int i=(bitArraySizeInChar/4)*4; i < bitArraySizeInChar;i++){
+        for(int j=0;j<n;j++){
+            defaultBitArray[i] = defaultBitArray[i] & bitMatrix[offsets[j]*bitArraySizeInChar + i];
+        }
+        if(defaultBitArray[i]!=0){
+            noZeros[noZeroCount] = i;
+            noZeroCount ++;
+        }
+    };
+//    Default intersection method
+//    for(int i=0;i < bitArraySizeInChar;i++){
+//        for(int j=0;j<n;j++){
+//            defaultBitArray[i] = defaultBitArray[i] & bitMatrix[offsets[j]*bitArraySizeInChar + i];
+//        }
+//    }
+    if(noZeroCount==0)return 0;
+    size = 0;
+    for(int ii=0; ii< noZeroCount; ii++){
+        int i = noZeros[ii];
+        int limit = bitDictionary->dic[defaultBitArray[i]];
+        for(int k=0;k<limit;k++){
+            int j = bitDictionary->offsets[defaultBitArray[i] * 8 + k];
+            if(i*8+7-j > anchorNode.size_plus)continue;
+            resultArray[size] = edgeArray[anchorNode.offset_plus + i*8+7-j];
+            size ++;
+        }
+    }
+
     return size;
 }
 
@@ -94,6 +168,8 @@ inline int BitMatrix::bitIntersect(NODETYPE *nds, int noNodes, NODETYPE *resultA
     if(size == 0) return 0;
     assert(noNodes>1);
     memset(defaultBitArray, 0xFF, bitArraySizeInChar);
+    char aczero = 0x00;
+    int aczeroI = 0;
     for(int j=0;j<noNodes;j++){
 //      perform intersection and get final list of candidates.
         NODE nd= ndArray[nds[j]];
@@ -114,23 +190,36 @@ inline int BitMatrix::bitIntersect(NODETYPE *nds, int noNodes, NODETYPE *resultA
 //        if(bitArraySizeInChar > 64){
 //            cout << bitArraySizeInChar << " ";
 //        }
-        for(int i=0;i < 4 && i < bitArraySizeInChar;i++){
-            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
-            zero = zero | bitArray[i];
-        }
-        for(int i=1;i<bitArraySizeInChar/4;i++){
-            a[i] = a[i] & b[i];
-            zeroI = zeroI | b[i];
-        }
-        for(int i=(bitArraySizeInChar/4)*4; i < bitArraySizeInChar;i++){
-            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
-            zero = zero | bitArray[i];
-        }
-//        for(int i=0;i < bitArraySizeInChar;i++){
+//        for(int i=0;i < 4 && i < bitArraySizeInChar;i++){
 //            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
-//            zero = zero | defaultBitArray[i];
+//            zero = zero | bitArray[i];
 //        }
-        if(!zero && !zeroI){
+//        for(int i=1;i<bitArraySizeInChar/4;i++){
+//            a[i] = a[i] & b[i];
+//            zeroI = zeroI | b[i];
+//        }
+//        for(int i=(bitArraySizeInChar/4)*4; i < bitArraySizeInChar;i++){
+//            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
+//            zero = zero | bitArray[i];
+//        }
+
+//        for(int i=0;i < 4 && i < bitArraySizeInChar;i++){
+//            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
+//            zero = zero | bitArray[i];
+//        }
+//        for(int i=1;i<bitArraySizeInChar/4;i++){
+//            a[i] = a[i] & b[i];
+//            zeroI = zeroI | b[i];
+//        }
+//        for(int i=(bitArraySizeInChar/4)*4; i < bitArraySizeInChar;i++){
+//            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
+//            zero = zero | bitArray[i];
+//        }
+        for(int i=0;i < bitArraySizeInChar;i++){
+            defaultBitArray[i] = defaultBitArray[i] & bitArray[i];
+            zero = zero | defaultBitArray[i];
+        }
+        if(zero == 0x00 && zeroI == 0){
             return  0;
         }
     }
@@ -232,6 +321,7 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
     sort(VFTuples,VFTuples + noVFTuples, [&](struct V_F_tuple a, struct V_F_tuple b){
         return a.freq > b.freq;
     });
+
     int size;
     stop_timer(BITMATRIXCONSTRUCTION);
     start_timer(BITSIMDINTERSECTIONTIME);
@@ -246,7 +336,9 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
                 PEmbedding* pe = &partials[ve->start + poffset];
                 if(pe->isDone)continue;
                 pe->isDone = true;
-                size = b->bitIntersect(&nbNodes[pe->nbStart], ghdNode->getNoIncidentAttributes(level+1), candidateSets);
+                size = 0;
+                size = b->sparseBitIntersect(&nbNodes[pe->nbStart], ghdNode->getNoIncidentAttributes(level+1), candidateSets);
+                if(size == 0)continue;
                 if(level == ghdNode->getNoAttributes()-2){
                     s = s + size;
                 }else{

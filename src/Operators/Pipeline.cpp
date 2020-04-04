@@ -75,6 +75,7 @@ int Pipeline::recursive_evaluate(int levelNo){
     while(start < noMetaBlocks){
         int noBlocks = level->getNoContinuosMetaBlocksFromStart(start);
 //        s = s + evaluate_level_blocks(levelNo, start, noBlocks);
+//        FixME: Is this a triangle
         if(ghdNode->getNoIncidentAttributes(levelNo+1)<3){
             s = s + evaluate_level_blocks(levelNo, start, noBlocks);
         }else{
@@ -104,7 +105,6 @@ int Pipeline::run(){
     reset_timer(TOTALNODEPROCESSTIME);
     start_timer(TOTALNODEPROCESSTIME);
     for(int i=0;i<graph->getNoVertexes();i++){
-//        cout << i <<"\n";
         if(batchSize == TrieLevel::CHUNK){
             trie->appendTrieBlockToLevel(0, &root ,batch, batchSize);
             levelSize = levelSize + batchSize;

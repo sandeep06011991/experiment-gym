@@ -28,14 +28,13 @@ int main(int argc, char *argv[]){
 //    Graph *    graph = new Graph("data/data1.graph");
 //    Graph *graph = new Graph("data/clique");
     Graph * graph = new Graph("data/com-youtube.ungraph.txt.ro");
-//    cout << sizeof(void *) << sizeof (NODETYPE) <<"\n";
 //    Graph * graph = new Graph("data/com-lj.ungraph.txt.ro");
 //    Graph *graph = new Graph("data/com-amazon.ungraph.txt.ro");
 //    GHDNode * node = getTriangleGHDNode();
 //        int a =  graph->getNoVertexes();
 
-    GHDNode * node = get6Clique();
-//    GHDNode * node = get5Clique();
+//    GHDNode * node = get6Clique();
+    GHDNode * node = get5Clique();
 //    GHDNode * node = getSquareNode();
 //    GHDNode * node = get4Clique();
 

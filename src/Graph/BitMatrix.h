@@ -68,6 +68,8 @@ public:
 
     int naiveIntersect(NODETYPE *nds, int noNodes, NODETYPE* resultArray);
 
+    int sparseBitIntersect(NODETYPE *nds, int noNOdes, NODETYPE * resultArray);
+
 };
 
 

@@ -44,7 +44,9 @@ public:
 
     int getNoIncidentAttributes(int attribute);
 
-    int getNoAttributes();
+    inline int getNoAttributes(){
+            return noAttributes;
+    }
 
 };
 

@@ -5,11 +5,15 @@ Components which I will expect will reused will have unit tests
 
 ## Current Sprint
 
-1. Stabilize code and start experiments on elba goal.
-2. Unecessary continues should be avoided.
-3. Inline code.
-4. Test naive on elba.
-5. Build infrastructure
+1. Optimizations to do: bucket sort
+2. Optimize intersections to skip over sorting. (START)
+3. Make notes on trie data structure.
+4. Move onto elba and test.
+
+## For paper.
+
+1. Canonicality.
+
 
 
 

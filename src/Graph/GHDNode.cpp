@@ -46,9 +46,7 @@ int GHDNode::getNoIncidentAttributes(int attribute){
     return nbs[attribute].size;
 }
 
-int GHDNode::getNoAttributes(){
-    return noAttributes;
-}
+
 
 
 GHDNode * getTriangleGHDNode(){

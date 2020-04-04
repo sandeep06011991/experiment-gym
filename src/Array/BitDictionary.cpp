@@ -14,6 +14,7 @@ BitDictionary::BitDictionary(){
         }
         dic[i] = t;
     }
+    populateOffsets();
 }
 
 int BitDictionary::countSetBits(unsigned char t){
