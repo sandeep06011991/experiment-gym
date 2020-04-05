@@ -35,15 +35,13 @@ class BitMatrixEvaluator {
 
     static const int MAX_PEMBEDDINGS = 10000;
 
-    static const int MAX_V_E_TUPLE = 10000;
+    static const int MAX_V_E_TUPLE = 100000;
 
     static const int MAX_V_F_TUPLE = 10000;
 
     static const int MAX_NB_NODES = 10000;
 
     int totalNoPartials = 0;
-
-    int noVETuples = 0;
 
     int noVFTuples = 0;
 
@@ -55,7 +53,13 @@ class BitMatrixEvaluator {
 
     struct PEmbedding * partials;
 
-    struct V_E_tuple * VETuples;
+    static const int buckets = 1;
+
+    static const int MAX_BUCKET_FILL = MAX_V_E_TUPLE / buckets;
+
+    struct V_E_tuple ** VEBuckets;
+
+    int * veBucketFill;
 
     struct V_F_tuple * VFTuples;
 
@@ -68,6 +72,8 @@ class BitMatrixEvaluator {
     Trie *trie;
 
     void checkIfFitsInDatastructures( int level, int startMetaBlock, int noBlocks);
+
+    void addToBucket();
 
 public:
 

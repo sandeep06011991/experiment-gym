@@ -35,8 +35,14 @@ BitMatrixEvaluator::BitMatrixEvaluator(Graph *graph,GHDNode *ghdNode, Trie * tri
     this->graph = graph;
     this->ghdNode = ghdNode;
     this->trie = trie;
+    VEBuckets = (struct V_E_tuple **)malloc(buckets * sizeof(struct V_E_tuple));
+    veBucketFill = (int *)malloc(sizeof(int) * buckets);
+    for(int i=0;i<buckets;i++){
+        VEBuckets[i] = (struct V_E_tuple *)malloc(MAX_BUCKET_FILL * sizeof(struct V_E_tuple));
+        veBucketFill[i] = 0;
+    }
+
     partials = (struct PEmbedding *)malloc(MAX_PEMBEDDINGS * sizeof(struct PEmbedding));
-    VETuples = (struct V_E_tuple *)malloc(MAX_V_E_TUPLE * sizeof(struct V_E_tuple));
     VFTuples = (struct V_F_tuple *)malloc(MAX_V_F_TUPLE * sizeof(struct V_F_tuple));
     nbNodes = (NODETYPE *)malloc(sizeof(NODETYPE) * MAX_NB_NODES);
     candidateSets = (NODETYPE *)malloc(sizeof(NODETYPE)*10000);
@@ -106,6 +112,7 @@ inline int BitMatrix::sparseBitIntersect(NODETYPE *nds, int noNodes, NODETYPE *r
     NODETYPE offsets[noNodes];
     unsigned int * intPointers[noNodes];
     int n = 0;
+
     for(int i=0; i<noNodes; i++){
         if(nds[i] == anchor)continue;
         if(remapping[nds[i]] <= prevOffset){
@@ -242,18 +249,20 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
     // populate key datastructures.
     NODETYPE nbs[MAX_NEIGHBOURS];
     totalNoPartials = 0;
-    noVETuples = 0;
     noVFTuples = 0;
     noNbNodes = 0;
     int s = 0;
     int nbSize = ghdNode->getNoIncidentAttributes(level+1);
     assert(nbSize < MAX_NEIGHBOURS);
     NODETYPE prev[nbSize];
+    int prevBid[nbSize];
     for(int i=0;i<nbSize;i++){
         prev[i] = -1;
+        prevBid[nbSize] = -1;
     }
+    memset(veBucketFill,0,sizeof(int) * buckets);
 //    return 0;
-    start_timer(BITMATRIXCONSTRUCTION);
+
     for(int bid=startMetaBlock;bid < startMetaBlock + noBlocks; bid ++){
         Level_Meta *lm =  &trie->levels[level]->meta_blocks[bid];
         if(lm->block_size==0)continue;
@@ -275,63 +284,75 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
                 nbNodes[noNbNodes] = nbs[i];
                 noNbNodes ++;
                 assert(noNbNodes < MAX_NB_NODES);
+                int bucketId = nbs[i] % buckets;
+                struct V_E_tuple * v =  &VEBuckets[bucketId][veBucketFill[bucketId]];
                 if(prev[i]==-1){
-                    VETuples[noVETuples].vid = nbs[i];
-                    VETuples[noVETuples].start = totalNoPartials;
-                    VETuples[noVETuples].size =1;
-                    prev[i] = noVETuples;
-                    noVETuples ++;
+                    v->vid = nbs[i];
+                    v->start = totalNoPartials;
+                    v->size = 1;
+                    prev[i] = veBucketFill[bucketId];
+                    prevBid[i] = bucketId;
+                    veBucketFill[bucketId] ++;
                     continue;
                 }else{
-                    if(VETuples[prev[i]].vid == nbs[i]){
-                        VETuples[prev[i]].size ++;
+                    if((prevBid[i] == bucketId) &&
+                        (veBucketFill[bucketId]== prev[i]) &&
+                            (VEBuckets[bucketId][prev[i]].vid == nbs[i])){
+                        VEBuckets[prevBid[i]][prev[i]].size ++;
                     }else{
-                        VETuples[noVETuples].vid = nbs[i];
-                        VETuples[noVETuples].start = totalNoPartials;
-                        VETuples[noVETuples].size =1;
-                        prev[i] = noVETuples;
-                        noVETuples ++;
+                        v->vid = nbs[i];
+                        v->start = totalNoPartials;
+                        v->size =1;
+                        prev[i] = veBucketFill[bucketId];
+                        prevBid[i] = bucketId;
+                        veBucketFill[bucketId] ++;
                     }
                 }
+                assert(veBucketFill[bucketId] < MAX_BUCKET_FILL);
             }
             totalNoPartials ++;
         }
     }
+    // Check offsets.
 
 //    start_timer(BITMATRIXCONSTRUCTION);
-    sort(VETuples, VETuples + noVETuples, [&](struct V_E_tuple a, struct V_E_tuple b){
-        return a.vid < b.vid;
-    });
+    for(int i=0;i < buckets;i++){
+        sort(VEBuckets[i],VEBuckets[i] + veBucketFill[i],[&](struct V_E_tuple a, struct V_E_tuple b){
+            return a.vid < b.vid;
+        });
+    }
 
-    VFTuples[0].vid = VETuples[0].vid;
-    VFTuples[0].start = 0;
-    VFTuples[0].freq = VETuples[0].size;
-    noVFTuples ++;
-    for(int i=1;i < noVETuples;i++){
-        if(VFTuples[noVFTuples-1].vid == VETuples[i].vid){
-            VFTuples[noVFTuples-1].freq = VFTuples[noVFTuples-1].freq + VETuples[i].size;
-        }else{
-            VFTuples[noVFTuples].vid = VETuples[i].vid;
-            VFTuples[noVFTuples].start = i;
-            VFTuples[noVFTuples].freq = VETuples[i].size;
-            noVFTuples ++;
+    for(int bid=0;bid < buckets; bid ++){
+        if(veBucketFill[bid]==0)continue;
+        VFTuples[noVFTuples].vid = VEBuckets[bid][0].vid;
+        VFTuples[noVFTuples].start = 0;
+        VFTuples[noVFTuples].freq = VEBuckets[bid][0].size;
+        noVFTuples ++;
+        for(int i=1;i < veBucketFill[bid];i++){
+            if(VFTuples[noVFTuples-1].vid == VEBuckets[bid][i].vid){
+                VFTuples[noVFTuples-1].freq = VFTuples[noVFTuples-1].freq + VEBuckets[bid][i].size;
+            }else{
+                VFTuples[noVFTuples].vid = VEBuckets[bid][i].vid;
+                VFTuples[noVFTuples].start = i;
+                VFTuples[noVFTuples].freq = VEBuckets[bid][i].size;
+                noVFTuples ++;
+            }
         }
     }
-//
+    //
+
     sort(VFTuples,VFTuples + noVFTuples, [&](struct V_F_tuple a, struct V_F_tuple b){
         return a.freq > b.freq;
     });
 
     int size;
-    stop_timer(BITMATRIXCONSTRUCTION);
-    start_timer(BITSIMDINTERSECTIONTIME);
-//    return 0;
     for(int i=0; i < noVFTuples;i++){
         b->setAnchor(VFTuples[i].vid,level);
         int j = 0;
         int f_tuple_offset = 0;
+        int bid = VFTuples[i].vid % buckets;
         while(j < VFTuples[i].freq){
-            V_E_tuple *ve = &VETuples[VFTuples[i].start + f_tuple_offset];
+            V_E_tuple *ve = &VEBuckets[bid][VFTuples[i].start + f_tuple_offset];
             for(int poffset = 0; poffset < ve->size; poffset ++){
                 PEmbedding* pe = &partials[ve->start + poffset];
                 if(pe->isDone)continue;
@@ -356,6 +377,5 @@ int BitMatrixEvaluator::process(int level, int startMetaBlock, int noBlocks){
         }
 
     }
-    stop_timer(BITSIMDINTERSECTIONTIME);
     return  s;
 }

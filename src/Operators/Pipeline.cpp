@@ -72,6 +72,7 @@ int Pipeline::recursive_evaluate(int levelNo){
     int noMetaBlocks = level->getNoMetaBlocks();
     int s = 0;
     int t = 0;
+
     while(start < noMetaBlocks){
         int noBlocks = level->getNoContinuosMetaBlocksFromStart(start);
 //        s = s + evaluate_level_blocks(levelNo, start, noBlocks);
